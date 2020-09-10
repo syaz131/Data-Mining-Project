@@ -2,6 +2,10 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+import descartes
+import geopandas as gpd
+
+from matplotlib.collections import PatchCollection
 
 import yfinance as yf
 import streamlit as st
@@ -80,5 +84,70 @@ plt.figure(figsize=(40, 40))
 corr_plot = sns.heatmap(corr_matrix, vmax=0.8, square=True, fmt='.3f', annot=True,
                         annot_kws={'size': 18}, cmap=sns.color_palette('Blues'))
 st.pyplot()
-# st.line_chart(corr_plot)
-st.write('not bad')
+
+st.write('Frequency of each Loan Decision  and  Percentage of each Loan Decision')
+fig, axs = plt.subplots(1,2,figsize=(14,7))
+sns.countplot(x='Decision',data=df1,ax=axs[0])
+axs[0].set_title("Frequency of each Loan Decision")
+df.Decision.value_counts().plot(x=None,y=None, kind='pie', ax=axs[1],autopct='%1.2f%%')
+axs[1].set_title("Percentage of each Loan Decision")
+st.pyplot()
+
+st.write('No Name')
+df['Employment_Type'].value_counts().plot(kind='bar')
+st.pyplot()
+
+df['Property_Type'].value_counts().plot(kind='bar')
+st.pyplot()
+
+sns.catplot(x="Credit_Card_Exceed_Months", hue="Decision", kind="count", data=df)
+st.pyplot()
+
+sns.catplot("Decision", col="Employment_Type", col_wrap=5,
+            data=df, kind="count", height=10, aspect=.3)
+st.pyplot()
+
+st.write('Box Plot')
+sns.boxplot(x='Employment_Type', y='Loan_Amount', data=df)
+st.pyplot()
+
+#HISTOGRAM OF LOAN AMOUNT
+st.write('HISTOGRAM OF LOAN AMOUNT ')
+data = df1["Loan_Amount"]
+plt.hist(data, bins=[100000,200000,300000,400000,500000,600000,700000,800000])
+st.pyplot()
+
+
+sns.catplot(x="Number_of_Properties", hue="Decision", kind="count", data=df1)
+st.pyplot()
+
+
+# Map Malaysia
+df_gbp = df1[["State", "Total_Sum_of_Loan"]]
+gbp = df_gbp.groupby(["State"],as_index=False).median()
+
+fp = "./map Malaysia/Malaysia_Polygon.shp"
+map_df = gpd.read_file(fp)
+map_df['name'] = map_df['name'].str.upper()
+map_df["name"]= map_df["name"].replace("KUALA LUMPUR", "KUALALUMPUR")
+map_df["name"]= map_df["name"].replace("NEGERI SEMBILAN", "NEGERISEMBILAN")
+# check data type so we can see that this is not a normal dataframe, but a GEOdataframe
+#map_df.plot()
+merged = map_df.set_index('name').join(gbp.set_index('State'))
+# set a variable that will call whatever column we want to visualise on the map
+variable = "Total_Sum_of_Loan"
+# set the range for the choropleth
+vmin, vmax = 0, 33000
+# create figure and axes for Matplotlib
+fig, ax = plt.subplots(1, figsize=(10, 6))
+ax.axis('off')
+
+# Create colorbar as a legend
+sm = plt.cm.ScalarMappable(cmap='Greens', norm=plt.Normalize(vmin=vmin, vmax=vmax))
+# empty array for the data range
+sm._A = []
+# add the colorbar to the figure
+cbar = fig.colorbar(sm)
+
+merged.plot(column=variable, cmap='Greens', linewidth=0.5, ax=ax, edgecolor='0')
+st.pyplot()
