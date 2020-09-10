@@ -42,9 +42,13 @@ for i in range(0, df.shape[0]):
     df['Decision'][i] = df['Decision'][i].upper()
     df['More_Than_One_Products'][i] = df['More_Than_One_Products'][i].upper()
     df['Employment_Type'][i] = df['Employment_Type'][i].upper()
-    df['Property_Type'][i] = df['Property_Type'][i].upper()
+    if (type(df['Property_Type'][i]) != float):
+        df['Property_Type'][i] = df['Property_Type'][i].upper()
 
 df1 = df.copy()
+# fill property type
+df1['Property_Type'] = df1['Property_Type'].ffill(axis = 0)
+
 # year
 df1.Loan_Tenure_Year = df1.Loan_Tenure_Year.fillna(df1.Loan_Tenure_Year.median())
 df1.Years_to_Financial_Freedom = df1.Years_to_Financial_Freedom.fillna(df1.Loan_Tenure_Year.median())
