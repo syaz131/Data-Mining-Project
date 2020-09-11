@@ -5,7 +5,8 @@ data mining project 2020
 Bank_CS.csv 
 
 ## Data Cleaning
-fill na with median and average
+fill na values with median and average
+
 string to uppercase
 
 ## Data Mining Task
@@ -22,5 +23,5 @@ string to uppercase
 
 ```bash
 streamlit run proj_DM.py
-``
+
 
