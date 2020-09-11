@@ -25,4 +25,4 @@ string to uppercase
 streamlit run proj_DM.py
 ```
 
-Pdf report using overleaf
+Pdf report using overleaf.
