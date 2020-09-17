@@ -28,6 +28,7 @@ import xgboost as xgb
 from sklearn.svm import SVC
 
 from sklearn.cluster import KMeans
+from yellowbrick.cluster import silhouette_visualizer
 
 from apyori import apriori
 
@@ -112,7 +113,7 @@ select_CC_type = [np.nan, 'PLATINUM', 'NORMAL', 'GOLD']
 
 # ============================ Streamlit UI
 
-menu = ['Classification', 'EDA', 'Clustering', 'ARM']
+menu = ['Clustering', 'Classification', 'EDA', 'ARM']
 st.sidebar.subheader('Menu')
 choice = st.sidebar.selectbox("", menu)
 
@@ -598,7 +599,7 @@ if choice == 'Classification':
     st.pyplot()
 
     # =================== Predict Input ============
-    st.header('Predict Input')
+    st.header('Predict Input - Random Forest Classification')
 
     st.write('Prediction of your input:')
     st.write(new_series.iloc[0])
@@ -633,11 +634,6 @@ if choice == 'Classification':
     st.header('End Classification')
 
 if choice == 'Clustering':
-    # =============== Input Data ==========
-    st.subheader('Input Data')
-    st.write(new_series)
-
-    st.title('Clustering')
 
     # =========================== Clustering ===============================
     st.header('Clustering - K Mean Clustering')
@@ -652,6 +648,15 @@ if choice == 'Clustering':
     X = df_cluster.drop('Decision', axis=1)
     y = df_cluster['Decision']
     # Perform dummification on X only
+    try:
+        new_series = new_series.drop(["Decision"], axis=1)
+    except:
+        print('already drop')
+
+    X_new = X.append(new_series.iloc[0])
+    # reset index
+    X_new = X_new.reset_index(drop=True)
+
     X = pd.get_dummies(X, drop_first=True)
 
     st.write('Plot the graph using df_ori  to see how is the original data scattered around.')
@@ -682,6 +687,26 @@ if choice == 'Clustering':
     plt.subplot(212)
     sns.scatterplot(x="Monthly_Salary", y="Loan_Amount", hue="Decision", data=df_clust_label)
     st.pyplot()
+
+    y_pred = km.predict(X)
+    st.write("Silhouette Score (n=3) = ", silhouette_score(X, y_pred))
+
+    st.subheader('Graph Silhouette Plot')
+    plt.figure(figsize=(10, 4))
+    silhouette_visualizer(KMeans(3, random_state=12), X, colors='yellowbrick')
+    st.pyplot()
+
+    # =================== Predict Input ============
+    st.header('Clustering Input - K Mean Clustering')
+    st.write('Clustering of your input:')
+    st.write(X_new.iloc[-1])
+
+    X_new = pd.get_dummies(X_new, drop_first=True)
+    X_new = X_new.drop(X_new.index[:-1])
+
+    new_y_pred = km.predict(X_new)
+    st.write('Clustering Label of your input :')
+    st.success(new_y_pred)
 
     # =========================== Stop ===============================
     st.header('End Clustering')
