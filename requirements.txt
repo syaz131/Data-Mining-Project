@@ -8,3 +8,4 @@ xgboost==1.2.0
 scikit-learn==0.23.2
 imblearn==0.0
 boruta==0.3
+apyori==1.1.2
