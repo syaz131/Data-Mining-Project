@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
 import numpy as np
 import geopandas as gpd
+import descartes
 import streamlit as st
 
 from imblearn.over_sampling import SMOTE
