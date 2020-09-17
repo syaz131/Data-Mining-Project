@@ -94,81 +94,142 @@ df_eda = df_eda.reset_index(drop=True)
 df_eda = df_eda.drop(["Unnamed: 0", "Unnamed: 0.1"], axis=1)
 
 # ================================= New Input
-new_Total_Income_for_Join_Application = 0
-new_Monthly_Salary = 0
-new_Loan_Amount = 0
-new_Credit_Card_Exceed_Months = 0
-
-new_Employment_Type = ''
-new_Property_Type = ''
-new_More_Than_One_Products = ''
+# new_Total_Income_for_Join_Application = 0
+# new_Monthly_Salary = 0
+# new_Loan_Amount = 0
+# new_Credit_Card_Exceed_Months = 0
+#
+# new_Employment_Type = ''
+# new_Property_Type = ''
+# new_More_Than_One_Products = ''
 
 select_yes_no = [np.nan, 'YES', 'NO']
-# select_reject_accept = ['REJECT', 'ACCEPT']
 select_Employment_Type = [np.nan, 'EMPLOYER', 'SELF_EMPLOYED', 'GOVERNMENT', 'EMPLOYEE', 'FRESH_GRADUATE']
 select_Property_Type = [np.nan, 'CONDOMINIUM', 'BUNGALOW', 'TERRACE', 'FLAT']
-
-# new_series = df_eda.iloc[0].copy()
+select_State = [np.nan, 'JOHOR', 'SELANGOR', 'KUALALUMPUR', 'PENANG', 'NEGERISEMBILAN', 'SARAWAK', 'SABAH',
+                'TERENGGANU', 'KEDAH']
+select_CC_type = [np.nan, 'PLATINUM', 'NORMAL', 'GOLD']
 
 # ============================ Streamlit UI
 
 menu = ['Classification', 'EDA', 'Clustering', 'ARM']
-choice = st.sidebar.selectbox("Menu", menu)
+st.sidebar.subheader('Menu')
+choice = st.sidebar.selectbox("", menu)
 
 if choice == 'Classification' or choice == 'Clustering' or choice == 'ARM':
-    new_Loan_Amount = st.sidebar.number_input('Loan Amount')
-    new_Monthly_Salary = st.sidebar.number_input('Monthly Salary')
-    new_Total_Income_for_Join_Application = st.sidebar.number_input('Total Income for Join Application')
+    st.sidebar.write('****************')
+    st.sidebar.subheader('Input Form')
+
     new_Credit_Card_Exceed_Months = st.sidebar.number_input('Credit Card Exceed Months')
-
     new_Employment_Type = st.sidebar.selectbox('Employment Type', select_Employment_Type)
-    new_Property_Type = st.sidebar.selectbox('Property Type', select_Property_Type)
+    new_Loan_Amount = st.sidebar.number_input('Loan Amount')
+    new_Loan_Tenure_Year = st.sidebar.number_input('Loan Tenure Year')
+
     new_More_Than_One_Products = st.sidebar.selectbox('More Than One Products', select_yes_no)
+    new_Credit_Card_types = st.sidebar.selectbox('Credit Card types', select_CC_type)
+    new_Number_of_Dependents = st.sidebar.number_input('Number of Dependents')
+    new_Years_to_Financial_Freedom = st.sidebar.number_input('Years to Financial Freedom')
 
-    # new_data = np.array([new_Loan_Amount, new_Monthly_Salary, new_Employment_Type, new_Property_Type])
-    # data_is_nan = np.isnan(new_data)
-    # result will be NaN if and only if array has one or more NaN values
-    # array_sum = np.sum(new_data)
-    # array_has_nan = np.isnan(array_sum)
-    new_data_list = [new_Loan_Amount, new_Monthly_Salary, new_Employment_Type, new_Property_Type]
-    isna_data_list = False
+    new_Number_of_Credit_Card_Facility = st.sidebar.number_input('Number of Credit Card Facility')
+    new_Number_of_Properties = st.sidebar.number_input('Number of Properties')
+    new_Number_of_Bank_Products = st.sidebar.number_input('Number of Bank Products')
+    new_Number_of_Loan_to_Approve = st.sidebar.number_input('Number of Loan to Approve')
 
-    if np.nan in new_data_list:
-        isna_data_list = True
+    new_Property_Type = st.sidebar.selectbox('Property Type', select_Property_Type)
+    new_Years_for_Property_to_Completion = st.sidebar.number_input('Years for Property to Completion')
+    new_State = st.sidebar.selectbox('State', select_State)
+
+    new_Number_of_Side_Income = st.sidebar.number_input('Number of Side Income')
+    new_Monthly_Salary = st.sidebar.number_input('Monthly Salary')
+    new_Total_Sum_of_Loan = st.sidebar.number_input('Total Sum of Loan')
+    new_Total_Income_for_Join_Application = st.sidebar.number_input('Total Income for Join Application')
+    new_Score = st.sidebar.number_input('Score')
+
+    new_data_object = [new_Employment_Type, new_More_Than_One_Products, new_Credit_Card_types,
+                       new_Property_Type, new_State]
+
+    new_data_int = [new_Credit_Card_Exceed_Months, new_Loan_Tenure_Year, new_Number_of_Dependents,
+                    new_Years_to_Financial_Freedom, new_Number_of_Loan_to_Approve,
+                    new_Years_for_Property_to_Completion, new_Score]
+
+    new_data_float = [new_Loan_Amount, new_Loan_Tenure_Year, new_Years_to_Financial_Freedom,
+                      new_Number_of_Credit_Card_Facility, new_Number_of_Properties,
+                      new_Years_for_Property_to_Completion, new_Number_of_Side_Income, new_Monthly_Salary,
+                      new_Total_Sum_of_Loan, new_Total_Income_for_Join_Application]
+
+    isna_data_list_object = False
+    isna_data_list_int = False
+    isna_data_list_float = False
+
+    if np.nan in new_data_object:
+        isna_data_list_object = True
+
+    for x in new_data_int:
+        if x < 0:
+            isna_data_list_int = True
+            break
+
+    # if not isna_data_list_int:
+    # [int(i) for i in new_data_int]
+
+    for x in new_data_float:
+        if x < 0:
+            isna_data_list_float = True
+            break
+
+    isna_data_list = isna_data_list_float == False and isna_data_list_int == False and isna_data_list_object == False
 
     new_series = df_eda.copy()
     new_series = new_series.drop(new_series.index[2:])
 
-    if st.sidebar.button('Update Input Data') and isna_data_list == False:
+    if st.sidebar.button('Update Input Data') and isna_data_list == True:
         new_series.iloc[0, 0] = int(new_Credit_Card_Exceed_Months)
         new_series.iloc[0, 1] = new_Employment_Type
         new_series.iloc[0, 2] = new_Loan_Amount
+        new_series.iloc[0, 3] = int(new_Loan_Tenure_Year)
+        new_series.iloc[0, 4] = new_More_Than_One_Products
+        new_series.iloc[0, 5] = new_Credit_Card_types
+        new_series.iloc[0, 6] = int(new_Number_of_Dependents)
+        new_series.iloc[0, 7] = int(new_Years_to_Financial_Freedom)
+        new_series.iloc[0, 8] = new_Number_of_Credit_Card_Facility
+        new_series.iloc[0, 9] = new_Number_of_Properties
+        new_series.iloc[0, 10] = new_Number_of_Bank_Products
+        new_series.iloc[0, 11] = int(new_Number_of_Loan_to_Approve)
+        new_series.iloc[0, 12] = new_Property_Type
+        new_series.iloc[0, 13] = int(new_Years_for_Property_to_Completion)
+        new_series.iloc[0, 14] = new_State
+        new_series.iloc[0, 15] = new_Number_of_Side_Income
+        new_series.iloc[0, 16] = new_Monthly_Salary
+        new_series.iloc[0, 17] = new_Total_Sum_of_Loan
+        new_series.iloc[0, 18] = new_Total_Income_for_Join_Application
+        new_series.iloc[0, 20] = int(new_Score)
+
+        new_series = new_series.drop(["Decision"], axis=1)
+        st.sidebar.success('Input Data Updated')
     else:
-        st.sidebar.warning('Complete Input Value with no NaN to Update Input Data')
+        st.sidebar.warning('Input Data Not Updated')
+        st.sidebar.write('Insert non NaN value and Positive value to Update Input Data')
 
 if choice == 'Classification':
-    # =============== Input Data ==========
-    st.subheader('Input Data')
-    st.write(new_series)
 
     st.title('Classification')
 
     # ================= Normalization ======================
-    df_normz = df_eda.copy()
-
-    features_to_scale = ["Loan_Amount", "Monthly_Salary", "Total_Income_for_Join_Application", "Total_Sum_of_Loan"]
-    to_scale = df_normz[features_to_scale]
-
-    min_max_scaler = StandardScaler()
-    x_scaled = min_max_scaler.fit_transform(to_scale)
-    df_x_scaled = pd.DataFrame(x_scaled, columns=features_to_scale)
-    # df_x_scaled
-
-    df_normz = df_normz.drop(features_to_scale, axis=1)
-    df_normz = pd.concat([df_normz, df_x_scaled], sort=True, axis=1)
+    # df_normz = df_eda.copy()
+    #
+    # features_to_scale = ["Loan_Amount", "Monthly_Salary", "Total_Income_for_Join_Application", "Total_Sum_of_Loan"]
+    # to_scale = df_normz[features_to_scale]
+    #
+    # min_max_scaler = StandardScaler()
+    # x_scaled = min_max_scaler.fit_transform(to_scale)
+    # df_x_scaled = pd.DataFrame(x_scaled, columns=features_to_scale)
+    # # df_x_scaled
+    #
+    # df_normz = df_normz.drop(features_to_scale, axis=1)
+    # df_normz = pd.concat([df_normz, df_x_scaled], sort=True, axis=1)
 
     # ================= Label Encoding ======================
-    df_le = df_normz.copy()
+    df_le = df_eda.copy()
 
     df_le['More_Than_One_Products'] = LabelEncoder().fit_transform(df_le.More_Than_One_Products)
     df_le['Employment_Type'] = LabelEncoder().fit_transform(df_le.Employment_Type)
@@ -178,7 +239,6 @@ if choice == 'Classification':
     df_le['Credit_Card_types'] = LabelEncoder().fit_transform(df_le.Credit_Card_types)
 
     # ================= SMOTENC ======================
-    st.header('After SMOTENC')
     y = df_le.Decision
     X = df_le.drop(["Decision"], axis=1)
 
@@ -193,8 +253,6 @@ if choice == 'Classification':
     axs[0].set_title("Frequency of each Loan Decision")
     os_data_y.Decision.value_counts().plot(x=None, y=None, kind='pie', ax=axs[1], autopct='%1.2f%%')
     axs[1].set_title("Percentage of each Loan Decision")
-    st.write('Frequency of each Loan Decision and Percentage of each Loan Decision')
-    st.pyplot()
 
     # =========================== Classification ===============================
     st.header('Classification')
@@ -539,6 +597,38 @@ if choice == 'Classification':
     plt.legend()
     st.pyplot()
 
+    # =================== Predict Input ============
+    st.header('Predict Input')
+
+    st.write('Prediction of your input:')
+    st.write(new_series.iloc[0])
+
+    # place to translate
+    Temp_dict = {'EMPLOYEE': 0, 'EMPLOYER': 1, 'FRESH_GRADUATE': 2, 'GOVERNMENT': 3, 'SELF_EMPLOYED': 4}
+    new_series['Employment_Type'] = new_series.Employment_Type.map(Temp_dict)
+    Temp_dict = {'NO': 0, 'YES': 1}
+    new_series['More_Than_One_Products'] = new_series.More_Than_One_Products.map(Temp_dict)
+    Temp_dict = {'BUNGALOW': 0, 'CONDOMINIUM': 1, 'FLAT': 2, 'TERRACE': 3}
+    new_series['Property_Type'] = new_series.Property_Type.map(Temp_dict)
+    Temp_dict = {'JOHOR': 0, 'KEDAH': 1, 'KUALALUMPUR': 2, 'NEGERISEMBILAN': 3, 'PENANG': 4, 'SABAH': 5, 'SARAWAK': 6,
+                 'SELANGOR': 7, 'TERENGGANU': 8}
+    new_series['State'] = new_series.State.map(Temp_dict)
+    Temp_dict = {'GOLD': 0, 'NORMAL': 1, 'PLATINUM': 2}
+    new_series['Credit_Card_types'] = new_series.Credit_Card_types.map(Temp_dict)
+
+    try:
+        new_series = new_series.drop(["Decision"], axis=1)
+    except:
+        print('already drop')
+
+    y_pred_os_input = clf_os.predict(new_series)
+
+    st.write('Prediction result:')
+    if y_pred_os_input[0] == 1:
+        st.error('REJECT')
+    else:
+        st.success('ACCEPT')
+
     # =========================== Stop ===============================
     st.header('End Classification')
 
@@ -693,21 +783,21 @@ if choice == 'EDA':
     st.pyplot()
 
     # ================= Normalization ======================
-    df_normz = df_eda.copy()
-
-    features_to_scale = ["Loan_Amount", "Monthly_Salary", "Total_Income_for_Join_Application", "Total_Sum_of_Loan"]
-    to_scale = df_normz[features_to_scale]
-
-    min_max_scaler = StandardScaler()
-    x_scaled = min_max_scaler.fit_transform(to_scale)
-    df_x_scaled = pd.DataFrame(x_scaled, columns=features_to_scale)
-    # df_x_scaled
-
-    df_normz = df_normz.drop(features_to_scale, axis=1)
-    df_normz = pd.concat([df_normz, df_x_scaled], sort=True, axis=1)
+    # df_normz = df_eda.copy()
+    #
+    # features_to_scale = ["Loan_Amount", "Monthly_Salary", "Total_Income_for_Join_Application", "Total_Sum_of_Loan"]
+    # to_scale = df_normz[features_to_scale]
+    #
+    # min_max_scaler = StandardScaler()
+    # x_scaled = min_max_scaler.fit_transform(to_scale)
+    # df_x_scaled = pd.DataFrame(x_scaled, columns=features_to_scale)
+    # # df_x_scaled
+    #
+    # df_normz = df_normz.drop(features_to_scale, axis=1)
+    # df_normz = pd.concat([df_normz, df_x_scaled], sort=True, axis=1)
 
     # ================= Label Encoding ======================
-    df_le = df_normz.copy()
+    df_le = df_eda.copy()
 
     df_le['More_Than_One_Products'] = LabelEncoder().fit_transform(df_le.More_Than_One_Products)
     df_le['Employment_Type'] = LabelEncoder().fit_transform(df_le.Employment_Type)
