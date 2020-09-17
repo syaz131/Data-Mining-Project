@@ -631,48 +631,48 @@ plt.legend()
 st.pyplot()
 
 # =========================== Clustering ===============================
-# st.header('Clustering - K Mean Clustering')
-# df_cluster = df_eda.copy()
-# df_ori = df_cluster.copy()
-#
-# st.write(df_ori)
-#
+st.header('Clustering - K Mean Clustering')
+df_cluster = df_eda.copy()
+df_ori = df_cluster.copy()
+
+st.write(df_ori)
+
 # # Transform the decision column in df_cluster into 1 and 0s using Label Encoding
-# df_cluster['Decision'] = LabelEncoder().fit_transform(df_cluster.Decision)
+df_cluster['Decision'] = LabelEncoder().fit_transform(df_cluster.Decision)
 # # Split the dataset
-# X = df_cluster.drop('Decision', axis=1)
-# y = df_cluster['Decision']
-# # Perform dummification on X only
-# X = pd.get_dummies(X, drop_first=True)
-#
-# st.write('Plot the graph using df_ori  to see how is the original data scattered around.')
-# sns.relplot(x="Loan_Amount", y="Total_Sum_of_Loan", hue="Decision", data=df_ori)
-# st.pyplot()
-#
-# km = KMeans(n_clusters=3, random_state=1)
-# km.fit(X)
-# # km.labels_
-#
-# # Create a new dataframe and replace the decision column with km.labels_
-# df_clust_label = df_ori.copy()
-# df_clust_label = df_clust_label.drop("Decision", axis=1)
-# df_clust_label['Decision'] = km.labels_
-#
-# st.write('Total_Income_for_Join_Application VS Total_Sum_of_Loan - 3 Cluster')
-# plt.figure(figsize=(10, 8))
-# plt.subplot(211)
-# sns.scatterplot(x="Total_Income_for_Join_Application", y="Total_Sum_of_Loan", hue="Decision", data=df_ori)
-# plt.subplot(212)
-# sns.scatterplot(x="Total_Income_for_Join_Application", y="Total_Sum_of_Loan", hue="Decision", data=df_clust_label)
-# st.pyplot()
-#
-# st.write('Monthly_Salary VS Loan_Amount - 3 Cluster')
-# plt.figure(figsize=(10,8))
-# plt.subplot(211)
-# sns.scatterplot(x="Monthly_Salary", y="Loan_Amount", hue="Decision", data=df_ori)
-# plt.subplot(212)
-# sns.scatterplot(x="Monthly_Salary", y="Loan_Amount", hue="Decision", data=df_clust_label)
-# st.pyplot()
+X = df_cluster.drop('Decision', axis=1)
+y = df_cluster['Decision']
+# Perform dummification on X only
+X = pd.get_dummies(X, drop_first=True)
+
+st.write('Plot the graph using df_ori  to see how is the original data scattered around.')
+sns.relplot(x="Loan_Amount", y="Total_Sum_of_Loan", hue="Decision", data=df_ori)
+st.pyplot()
+
+km = KMeans(n_clusters=3, random_state=1)
+km.fit(X)
+# km.labels_
+
+# Create a new dataframe and replace the decision column with km.labels_
+df_clust_label = df_ori.copy()
+df_clust_label = df_clust_label.drop("Decision", axis=1)
+df_clust_label['Decision'] = km.labels_
+
+st.write('Total_Income_for_Join_Application VS Total_Sum_of_Loan - 3 Cluster')
+plt.figure(figsize=(10, 8))
+plt.subplot(211)
+sns.scatterplot(x="Total_Income_for_Join_Application", y="Total_Sum_of_Loan", hue="Decision", data=df_ori)
+plt.subplot(212)
+sns.scatterplot(x="Total_Income_for_Join_Application", y="Total_Sum_of_Loan", hue="Decision", data=df_clust_label)
+st.pyplot()
+
+st.write('Monthly_Salary VS Loan_Amount - 3 Cluster')
+plt.figure(figsize=(10,8))
+plt.subplot(211)
+sns.scatterplot(x="Monthly_Salary", y="Loan_Amount", hue="Decision", data=df_ori)
+plt.subplot(212)
+sns.scatterplot(x="Monthly_Salary", y="Loan_Amount", hue="Decision", data=df_clust_label)
+st.pyplot()
 
 # =========================== Stop ===============================
 st.header('End')
