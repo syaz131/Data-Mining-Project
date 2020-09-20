@@ -6,7 +6,7 @@ import numpy as np
 import geopandas as gpd
 import descartes
 import streamlit as st
-# import cv2
+import cv2
 
 from imblearn.over_sampling import SMOTE
 from boruta import BorutaPy
