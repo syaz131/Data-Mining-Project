@@ -113,11 +113,11 @@ select_CC_type = [np.nan, 'PLATINUM', 'NORMAL', 'GOLD']
 
 # ============================ Streamlit UI
 
-menu = ['Clustering', 'Classification', 'EDA', 'ARM']
-st.sidebar.subheader('Menu')
-choice = st.sidebar.selectbox("", menu)
+menu = ['EDA', 'Feature Selection', 'Classification', 'Clustering', 'ARM']
+st.sidebar.subheader('Main Menu')
+choice = st.sidebar.selectbox("Select Menu Page", menu)
 
-if choice == 'Classification' or choice == 'Clustering' or choice == 'ARM':
+if choice == 'Classification' or choice == 'Clustering':
     st.sidebar.write('****************')
     st.sidebar.subheader('Input Form')
 
@@ -170,9 +170,6 @@ if choice == 'Classification' or choice == 'Clustering' or choice == 'ARM':
             isna_data_list_int = True
             break
 
-    # if not isna_data_list_int:
-    # [int(i) for i in new_data_int]
-
     for x in new_data_float:
         if x < 0:
             isna_data_list_float = True
@@ -215,20 +212,6 @@ if choice == 'Classification':
 
     st.title('Classification')
 
-    # ================= Normalization ======================
-    # df_normz = df_eda.copy()
-    #
-    # features_to_scale = ["Loan_Amount", "Monthly_Salary", "Total_Income_for_Join_Application", "Total_Sum_of_Loan"]
-    # to_scale = df_normz[features_to_scale]
-    #
-    # min_max_scaler = StandardScaler()
-    # x_scaled = min_max_scaler.fit_transform(to_scale)
-    # df_x_scaled = pd.DataFrame(x_scaled, columns=features_to_scale)
-    # # df_x_scaled
-    #
-    # df_normz = df_normz.drop(features_to_scale, axis=1)
-    # df_normz = pd.concat([df_normz, df_x_scaled], sort=True, axis=1)
-
     # ================= Label Encoding ======================
     df_le = df_eda.copy()
 
@@ -256,7 +239,6 @@ if choice == 'Classification':
     axs[1].set_title("Percentage of each Loan Decision")
 
     # =========================== Classification ===============================
-    st.header('Classification')
 
     X_train_os, X_test_os, y_train_os, y_test_os = train_test_split(os_data_X, os_data_y.values.ravel(), test_size=0.30,
                                                                     random_state=10)
@@ -553,6 +535,8 @@ if choice == 'Classification':
     plt.legend()
     st.pyplot()
 
+    st.write('**********************')
+
     # ====== Precision - Recall ================
     st.header('Graph Precision-Recall - Imbalance Dataset')
     prec_NB, rec_NB, thresholds_NB = precision_recall_curve(y_test, prob_nb)
@@ -631,12 +615,12 @@ if choice == 'Classification':
         st.success('ACCEPT')
 
     # =========================== Stop ===============================
-    st.header('End Classification')
+    st.header('End of Classification')
 
 if choice == 'Clustering':
 
     # =========================== Clustering ===============================
-    st.header('Clustering - K Mean Clustering')
+    st.title('Clustering - K Mean Clustering')
     df_cluster = df_eda.copy()
     df_ori = df_cluster.copy()
 
@@ -709,72 +693,89 @@ if choice == 'Clustering':
     st.success(new_y_pred)
 
     # =========================== Stop ===============================
-    st.header('End Clustering')
+    st.header('End of Clustering')
 
 if choice == 'EDA':
     st.title('Exploratory Data Analysis')
 
     # ================= Data EDA ======================
 
+    # st.write('Managing Missing Data')
+    # sns.boxplot(x='Loan_Amount', y='Employment_Type', data=df)
+    # st.pyplot()
+    # sns.boxplot(x='Monthly_Salary', y='Employment_Type', data=df)
+    # st.pyplot()
+    # sns.boxplot(x='Total_Sum_of_Loan', y='Employment_Type', data=df)
+    # st.pyplot()
+    # sns.boxplot(x='Total_Income_for_Join_Application', y='Employment_Type', data=df)
+    # st.pyplot()
+
     corr_matrix = df_eda.corr().abs()
-    plt.figure(figsize=(30, 30))
+    plt.figure(figsize=(20, 20))
     sns.heatmap(corr_matrix, vmax=0.8, square=True, fmt='.3f', annot=True, annot_kws={'size': 18},
                 cmap=sns.color_palette('Blues'))
-    st.write('Correlation Matrix')
+    st.subheader('Correlation Matrix')
     st.pyplot()
+    st.write('Most of the features have weak correlation in which the correlation score is0.01 and lower.There are a '
+             'few features that have moderately strong correlation such as YearstoFinancialFreedom and '
+             'NumberofDependents with a correlation score of 0.612')
 
-    df_eda['Employment_Type'].value_counts().plot(kind='bar')
-    st.write('Employment_Type')
+    sns.catplot(x="Property_Type", hue="Decision", kind="count", data=df_eda)
+    st.subheader('Count Plot')
     st.pyplot()
-
-    df['Property_Type'].value_counts().plot(kind='bar')
-    st.write('Property_Type')
-    st.pyplot()
+    st.write('Based on the count plot, people want-ing  to  purchase  condominiums  has  the  highest  loan  request  '
+             'accepted  and rejected,  followed  closely  those  who  owns  terrace.This  chart  tells  us  '
+             'that majority of the people requesting for a loan to purchase condominiums.')
 
     sns.catplot(x="Credit_Card_Exceed_Months", hue="Decision", kind="count", data=df_eda)
-    st.write('Credit_Card_Exceed_Months')
+    st.subheader('Count Plot')
     st.pyplot()
+    st.write('Based on the countplot,people who have not paid the credit card payment for 7 months has thehighest '
+             'loan request accepted.  This chart could possibly be evidence that the  feature  '
+             'creditcardexceedingmonths  is  not  a  strong  feature  in  loan-approval decision making.')
 
-    sns.catplot("Decision", col="Employment_Type", col_wrap=5, data=df_eda, kind="count", height=10, aspect=.3)
-    st.write('Employment_Type')
+    sns.catplot("Decision", col="Employment_Type", col_wrap=5,
+                data=df_eda, kind="count", height=10, aspect=.3)
+    st.subheader('Count Plot')
     st.pyplot()
-
-    sns.boxplot(x='Employment_Type', y='Loan_Amount', data=df_eda)
-    st.write('Loan_Amount')
-    st.pyplot()
-
-    data = df_eda2["Loan_Amount"]
-    plt.hist(data, bins=[100000, 200000, 300000, 400000, 500000, 600000, 700000, 800000])
-    st.write('Loan_Amount')
-    st.pyplot()
+    st.write('Based on the count plot, employee has the highest loan request accepted among the other employment '
+             'types. People who are self employed have the highest loan request rejected')
 
     sns.catplot(x="Number_of_Properties", hue="Decision", kind="count", data=df_eda)
-    st.write('Number_of_Properties')
+    st.subheader('Count Plot')
     st.pyplot()
+    st.write('Based  on  the  count  plot,people  with  two  properties  has  the  highest  loan  request  accepted  '
+             'and  rejected. This chart tells us that majority of the people requesting for a loan has 2 properties')
 
-    # binning Monthly Salary
     df_eda2["Monthly_SalaryG"] = pd.cut(df_eda2["Monthly_Salary"],
                                         bins=[3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000])
     df_eda2["Monthly_SalaryG"].value_counts().plot(kind="bar")
-    st.write('Monthly_SalaryG')
+    st.subheader('Barplot')
     st.pyplot()
+    st.write('Based on the barplot, majority of the people applying for a loan has a monthly salary ranging from 5000 '
+             'to 6000.')
 
+    # CROSSTAB OF MONTHLY SALARY AND DECISION
     table = pd.crosstab(df_eda2.Monthly_SalaryG, df_eda2.Decision)
     table.plot.barh(stacked=True)
     plt.ylabel('MONTHLY_SALARY_GROUP')
-    st.write('MONTHLY_SALARY_GROUP')
+    st.subheader('Stack Plot')
     st.pyplot()
+    st.write('Based on the plot,people with monthly salary ranging from 5000 to 6000 and 11000 to 12000 has the '
+             'highest loan request accepted.  People with monthly salary ranging from 5000 to 6000 also has the '
+             'highest loan request rejected.  This further proves and concludes that majority of the people applying '
+             'for a loan has a monthly salary ranging from 5000 to 6000.')
 
-    sns.catplot(x='Total_Sum_of_Loan', y='State', kind='bar', ci=None, data=df_eda, height=5, aspect=3, orient='h')
-    st.write('State')
-    st.pyplot()
-
+    # Decision by State
     table = pd.crosstab(df_eda.State, df_eda.Decision)
     table.plot.barh(stacked=True, figsize=(12, 6))
     plt.xlabel('Decision')
     plt.ylabel('State')
-    st.write('State')
+    st.subheader('Stack Plot')
     st.pyplot()
+    st.write('Based on the plot, Kuala Lumpur has the highest loan request  accepted  and  rejected.   This  implies  '
+             'that  majority  of  the  people applying  for  a  loan  is  from  the  Kuala  Lumpur  area.   Sabah,  '
+             'Kedah  and Terengganu have the lowest amount of loan applicants.')
 
     # Map
     df_gbp = df_eda[["State", "Total_Sum_of_Loan"]]
@@ -796,30 +797,11 @@ if choice == 'EDA':
     sm._A = []
     cbar = fig.colorbar(sm)
     merged.plot(column=variable, cmap='Greens', linewidth=0.5, ax=ax, edgecolor='0')
-    st.write('Map of Malaysia')
+    st.subheader('Geographical Plot')
     st.pyplot()
-
-    fig, axs = plt.subplots(1, 2, figsize=(14, 7))
-    sns.countplot(x='Decision', data=df_eda, ax=axs[0])
-    axs[0].set_title("Frequency of each Loan Decision")
-    df.Decision.value_counts().plot(x=None, y=None, kind='pie', ax=axs[1], autopct='%1.2f%%')
-    axs[1].set_title("Percentage of each Loan Decision")
-    st.write('Frequency of each Loan Decision and Percentage of each Loan Decision')
-    st.pyplot()
-
-    # ================= Normalization ======================
-    # df_normz = df_eda.copy()
-    #
-    # features_to_scale = ["Loan_Amount", "Monthly_Salary", "Total_Income_for_Join_Application", "Total_Sum_of_Loan"]
-    # to_scale = df_normz[features_to_scale]
-    #
-    # min_max_scaler = StandardScaler()
-    # x_scaled = min_max_scaler.fit_transform(to_scale)
-    # df_x_scaled = pd.DataFrame(x_scaled, columns=features_to_scale)
-    # # df_x_scaled
-    #
-    # df_normz = df_normz.drop(features_to_scale, axis=1)
-    # df_normz = pd.concat([df_normz, df_x_scaled], sort=True, axis=1)
+    st.write('Based on the plot, Sarawak has the highest total sum of loan Terengganu has the lowest total sum of '
+             ' loan. This could possibly imply that property value in Sarawak is higher compared to all other states in '
+             'Malaysia and thus, the high total sum of loan.')
 
     # ================= Label Encoding ======================
     df_le = df_eda.copy()
@@ -832,7 +814,20 @@ if choice == 'EDA':
     df_le['Credit_Card_types'] = LabelEncoder().fit_transform(df_le.Credit_Card_types)
 
     # ================= SMOTENC ======================
-    st.header('After SMOTENC')
+    st.header('Data Imbalance Treatment (SMOTE)')
+
+    st.subheader('Before SMOTE')
+    fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+    sns.countplot(x='Decision', data=df_eda, ax=axs[0])
+    axs[0].set_title("Frequency of each Loan Decision")
+    df.Decision.value_counts().plot(x=None, y=None, kind='pie', ax=axs[1], autopct='%1.2f%%')
+    axs[1].set_title("Percentage of each Loan Decision")
+    st.write('Frequency of each Loan Decision and Percentage of each Loan Decision')
+    st.pyplot()
+    st.write('There are two instances in the dependent variable,Decision which is Accept and Reject.  Based on the '
+             'figure, there is an unequal distribution of classes in dataset.  From 2208 objects in the dataset, '
+             '1661 objects have Decision = Accept and 547 objects have Decision = Reject')
+
     y = df_le.Decision
     X = df_le.drop(["Decision"], axis=1)
 
@@ -842,6 +837,7 @@ if choice == 'EDA':
     os_data_X = pd.DataFrame(data=os_data_X, columns=columns)
     os_data_y = pd.DataFrame(data=os_data_y, columns=['Decision'])
 
+    st.subheader('After SMOTE')
     fig, axs = plt.subplots(1, 2, figsize=(14, 7))
     sns.countplot(x='Decision', data=os_data_y, ax=axs[0])
     axs[0].set_title("Frequency of each Loan Decision")
@@ -849,6 +845,38 @@ if choice == 'EDA':
     axs[1].set_title("Percentage of each Loan Decision")
     st.write('Frequency of each Loan Decision and Percentage of each Loan Decision')
     st.pyplot()
+    st.write('Oversampling is done on the examples in the minority class (Decision = Reject).  Based on the figure,'
+             'there is an unequal distribution of classes in dataset. After applying SMOTE, the number of objects in '
+             'the dataset has increased from 2208 to3322 objects.  1661 objects have Decision = Accept and 1661 '
+             'objects have Decision = Reject.The class distribution is now balanced. ')
+
+    # =========================== Stop ===============================
+    st.header('End of EDA')
+
+if choice == 'Feature Selection':
+    st.title('Feature Selection')
+    st.header('Feature Selection using Boruta')
+
+    # Label Encoding
+    df_le = df_eda.copy()
+
+    df_le['More_Than_One_Products'] = LabelEncoder().fit_transform(df_le.More_Than_One_Products)
+    df_le['Employment_Type'] = LabelEncoder().fit_transform(df_le.Employment_Type)
+    df_le['Property_Type'] = LabelEncoder().fit_transform(df_le.Property_Type)
+    df_le['State'] = LabelEncoder().fit_transform(df_le.State)
+    df_le['Decision'] = LabelEncoder().fit_transform(df_le.Decision)
+    df_le['Credit_Card_types'] = LabelEncoder().fit_transform(df_le.Credit_Card_types)
+
+    # ================= SMOTENC ======================
+
+    y = df_le.Decision
+    X = df_le.drop(["Decision"], axis=1)
+
+    os = SMOTE(random_state=0)
+    columns = X.columns
+    os_data_X, os_data_y = os.fit_sample(X, y)
+    os_data_X = pd.DataFrame(data=os_data_X, columns=columns)
+    os_data_y = pd.DataFrame(data=os_data_y, columns=['Decision'])
 
 
     # ================= Boruta ======================
@@ -871,48 +899,96 @@ if choice == 'EDA':
     boruta_score = pd.DataFrame(list(boruta_score.items()), columns=['Features', 'Score'])
     boruta_score = boruta_score.sort_values('Score', ascending=False)
 
-    st.subheader('Boruta Score before SMOTENC ranking')
+    st.subheader('Boruta Score before SMOTE ranking')
     st.write('-----------Top 10------------')
     st.table(boruta_score.head(10))
+    st.write('Top 10 Features Selected in the Imbalanced Dataset. Only one feature has the highest score of 1.0 which '
+             'is TotalIncomeforJoinApplication. Other features in the top 10 features have a score ranging from 0.53 '
+             'to 0.95')
 
     st.write('-----------Bottom 10------------')
     st.table(boruta_score.tail(10))
-
-    boruta_score_os = ranking(list(map(float, feat_selector_os.ranking_)), colnames, order=-1)
-    boruta_score_os = pd.DataFrame(list(boruta_score_os.items()), columns=['Features', 'Score'])
-    boruta_score_os = boruta_score_os.sort_values('Score', ascending=False)
-
-    st.subheader('Boruta Score after SMOTENC ranking')
-    st.write('---------Top 10----------')
-    st.table(boruta_score_os.head(10))
-
-    st.write('---------Bottom 10----------')
-    st.table(boruta_score_os.tail(10))
+    st.write('Bottom  10  Features  Selected  in  the  ImbalancedDataset.There  are  a  few  features  with  score  '
+             'between  0.05  to  0.47.   There is one features with score 0.0.  Features with low score are not '
+             'relevant to the target variable.')
 
     sns_boruta_plot = sns.catplot(x="Score", y="Features", data=boruta_score[:], kind="bar", height=14, aspect=1.9,
                                   palette='coolwarm')
     plt.title("Boruta (Imbalance Dataset)")
     st.write('Boruta Score (Imbalance Dataset)')
     st.pyplot()
+    st.write('The importance of the features in the imbalanced dataset are ranked and shown in the above figure')
+
+    boruta_score_os = ranking(list(map(float, feat_selector_os.ranking_)),
+                              colnames, order=-1)
+    boruta_score_os = pd.DataFrame(list(boruta_score_os.items()), columns=['Features', 'Score'])
+    boruta_score_os = boruta_score_os.sort_values('Score', ascending=False)
+
+    st.subheader('Boruta Score after SMOTE ranking')
+    st.write('---------Top 10----------')
+    st.table(boruta_score_os.head(10))
+    st.write('All of  the  features  have  a  score  of  1.0.  Features  such  as  MonthlySalary,LoanAmount and '
+             'TotalIncomeforJoinApplication are believed to be useful to a model in predicting the target variable.')
+
+    st.write('---------Bottom 10----------')
+    st.table(boruta_score_os.tail(10))
+    st.write('There are one features with score 0.0.  The rest are 1.0.  Features with low score are not relevant to '
+             'the target variable')
 
     sns_boruta_plot = sns.catplot(x="Score", y="Features", data=boruta_score_os[:], kind="bar", height=14, aspect=1.9,
                                   palette='coolwarm')
     plt.title("Boruta (SMOTE Dataset)")
-    st.write('Boruta Score (SMOTENC Dataset)')
+    st.write('Boruta Score (SMOTE Dataset)')
     st.pyplot()
+    st.write('The importance of the features in the balanced dataset are ranked ands hown in the above figure')
 
     # =========================== Stop ===============================
-    st.header('End EDA')
+    st.header('End of Feature Selection')
 
 if choice == 'ARM':
-    # =============== Input Data ==========
-    st.subheader('Input Data')
-    st.write(new_series)
+    st.title("Association Rule Mining")
+    st.header('Rules Found')
+
+    df_arm = df_eda.copy()
+    df_arm = df_arm[["Employment_Type", "Credit_Card_types", "Property_Type"]]
+    records = []
+    for i in range(0, df_arm.shape[0]):
+        records.append([str(df_arm.values[i, j]) for j in range(0, df_arm.shape[1])])
 
     # ================= ARM ======================
-    st.title('Association Rule Mining')
-    st.write('Here is ARM')
-    # ================= ARM ======================
+    ar = apriori(records, min_support=0.0045, min_confidence=0.1, min_lift=1.5, min_length=2)
+    ar_result = list(ar)
+    association_results = ar_result.copy()
+
+    cnt = 0
+
+    for item in association_results:
+        cnt += 1
+        # first index of the inner list
+        # Contains base item and add item
+        pair = item[0]
+        items = [x for x in pair]
+        st.write("(Rule " + str(cnt) + ") " + items[0] + " -> " + items[1])
+
+        # second index of the inner list
+        st.write("Support: " + str(round(item[1], 3)))
+
+        # third index of the list located at 0th
+        # of the third index of the inner list
+
+        st.write("Confidence: " + str(round(item[2][0][2], 4)))
+        st.write("Lift: " + str(round(item[2][0][3], 4)))
+        st.write("***************************************")
+
+    st.write('Based on the following generated rules, the lift of terrace property to gold credit card is higher '
+             'compared to other credit card types. This indicates that they  have  a  strong  association.   The  '
+             'confidence  between  terrace  property towards normal credit card is higher compared to others.  '
+             'This shows thatin all transaction that is made by someone that wants to purchase a terrace property, '
+             ' the  normal  credit  card  appears  more  often  compared  to  other credit card types.  The '
+             'support of terrace property to the normal credit card is higher compared to other credit card types. '
+             ' The fraction of transactions that contain terrace property and Normal credit card is higher.  Based '
+             'on these  analysis,  the  bank  can  recommend  the  most  suitable  credit  card  to potential '
+             'customers based on the property they want to purchase.')
 
     # =========================== Stop ===============================
-    st.header('End ARM')
+    st.header('End of ARM')
