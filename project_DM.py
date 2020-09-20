@@ -10,7 +10,8 @@ import streamlit as st
 from imblearn.over_sampling import SMOTE
 from boruta import BorutaPy
 
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
+
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve
 from sklearn.metrics import precision_recall_curve
@@ -293,17 +294,34 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
+    n = [5, 10, 15, 20]
+    cv = []
+    mean_accuracy = []
+
+    for i in n:
+        accuracy_cv = cross_val_score(nb_os, X_train_os, y_train_os, scoring='accuracy', cv=i)
+        cv.append(i)
+        mean_accuracy.append(accuracy_cv.mean())
+
+    df_cv = pd.DataFrame({
+        "Cross_Validation": cv,
+        "Mean Accuracy": mean_accuracy
+    })
+
+    st.subheader('Line Chart')
+    st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    sns.relplot(x="Cross_Validation", y="Mean Accuracy", kind="line", markers=True, legend=False, data=df_cv)
+    st.pyplot()
+
     # ====== Random Forest ================
     st.header('Random Forest - Imbalance Dataset')
 
     clf = RandomForestClassifier(random_state=10)
-    # clf.fit(os_data_X, os_data_y.values.ravel())
     clf.fit(X_train, y_train)
 
     y_pred = clf.predict(X_test)
 
     # Model Accuracy
-
     st.write("Accuracy on test set: {:.3f}".format(clf.score(X_test, y_test)))
     prob_clf = clf.predict_proba(X_test)
     prob_clf = prob_clf[:, 1]
@@ -354,6 +372,25 @@ if choice == 'Classification':
     st.write('F1= {:.2f}'.format(f1_score(y_test_os, y_pred_os)))
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
+
+    cv = []
+    mean_accuracy = []
+
+    for i in n:
+        accuracy_cv = cross_val_score(clf_os, X_train_os, y_train_os, scoring='accuracy', cv=i)
+        cv.append(i)
+        mean_accuracy.append(accuracy_cv.mean())
+
+    df_cv = pd.DataFrame({
+        "Cross_Validation": cv,
+        "Mean Accuracy": mean_accuracy
+    })
+
+    st.subheader('Line Chart')
+    st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    sns.relplot(x="Cross_Validation", y="Mean Accuracy", kind="line", markers=True, legend=False,
+                data=df_cv)
+    st.pyplot()
 
     # ====== KNN ================
     st.header('K Nearest Neighbour - Imbalance Dataset')
@@ -410,10 +447,24 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    # ====== SVM ================
-    st.header('Support Vector Machine - Imbalance Dataset')
-    st.write('Here is SVM')
-    # ====== SVM ================
+    cv = []
+    mean_accuracy = []
+
+    for i in n:
+        accuracy_cv = cross_val_score(knn_os, X_train_os, y_train_os, scoring='accuracy', cv=i)
+        cv.append(i)
+        mean_accuracy.append(accuracy_cv.mean())
+
+    df_cv = pd.DataFrame({
+        "Cross_Validation": cv,
+        "Mean Accuracy": mean_accuracy
+    })
+
+    st.subheader('Line Chart')
+    st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    sns.relplot(x="Cross_Validation", y="Mean Accuracy", kind="line", markers=True, legend=False,
+                data=df_cv)
+    st.pyplot()
 
     # ====== XGB TREE ================
     st.header('XGBoost TREE - Imbalance Dataset')
@@ -478,6 +529,25 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
+    cv = []
+    mean_accuracy = []
+
+    for i in n:
+        accuracy_cv = cross_val_score(xg_tree_os, X_train_os, y_train_os, scoring='accuracy', cv=i)
+        cv.append(i)
+        mean_accuracy.append(accuracy_cv.mean())
+
+    df_cv = pd.DataFrame({
+        "Cross_Validation": cv,
+        "Mean Accuracy": mean_accuracy
+    })
+
+    st.subheader('Line Chart')
+    st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    sns.relplot(x="Cross_Validation", y="Mean Accuracy", kind="line", markers=True, legend=False,
+                data=df_cv)
+    st.pyplot()
+
     # ====== Graph ROC ================
     st.header('Graph ROC - Imbalance Dataset')
 
@@ -501,6 +571,10 @@ if choice == 'Classification':
     plt.title('Receiver Operating Characteristic (ROC) Curve')
     plt.legend()
     st.pyplot()
+    st.write('Graph above shows the ROC curves that fitting all the classifiers with imbalanced'
+             ' dataset. All the classifier curve are '
+             'closer to the 45-degree diagonal of the ROC space. Hence, the accuracy of the test for all classifiers '
+             'are low.')
 
     st.header('Graph ROC - Oversampled Dataset')
 
@@ -525,6 +599,13 @@ if choice == 'Classification':
     plt.legend()
     st.pyplot()
 
+    st.write('Graph above shows the ROC curves that fitting all the classifiers with balanced dataset '
+             '(after SMOTE). The curve for '
+             'Random Forest and XGBoost Tree classifiers are closer to the top left while Naive Bayes classifier is '
+             'closer to the  45-degree  diagonal  line  and  K-Nearest  Neighbors  is  in  between  them. Hence, '
+             'Random Forest and XGBoost Tree classifiers have the best accuracy and performance followed by Naive '
+             'Bayes and K-Nearest Neighbours.')
+
     st.write('**********************')
 
     # ====== Precision - Recall ================
@@ -540,7 +621,6 @@ if choice == 'Classification':
     plt.plot(prec_NB, rec_NB, color='orange', label='NB', linewidth=linewidth)
     plt.plot(prec_clf, rec_clf, color='blue', label='RF', linewidth=linewidth)
     plt.plot(prec_knn, rec_knn, color='green', label='KNN', linewidth=linewidth)
-    # plt.plot(prec_model, rec_model, color='red', label='SVM', linewidth=linewidth)
     plt.plot(prec_XGtree, rec_XGtree, color='purple', label='XG Tree', linewidth=linewidth)
 
     plt.plot([1, 0], [0.1, 0.1], color='green', linestyle='--')
@@ -549,11 +629,16 @@ if choice == 'Classification':
     plt.title('Precision-Recall Curve')
     plt.legend()
     st.pyplot()
+    st.write(
+        'The graph shows the Precision-Recall curve that of all the classifiers fitting the imbalanced dataset. A '
+        'model '
+        'with high precision and sensitivity is depicted as a point at (1,1). A skilful model is represented by '
+        'a curve that bows towards (1,1). All the classifier curves are far from the point (1,1). Hence, '
+        'the precision-recall for all classifiers are low.')
 
     st.header('Graph Precision-Recall - Oversampled Dataset')
     prec_NB, rec_NB, thresholds_NB = precision_recall_curve(y_test_os, prob_nb_os)
     prec_clf, rec_clf, thresholds_clf = precision_recall_curve(y_test_os, prob_clf_os)
-    # prec_model, rec_model, thresholds_model = precision_recall_curve(y_test_os, prob_model_os)
     prec_knn, rec_knn, thresholds_knn = precision_recall_curve(y_test_os, prob_knn_os)
     prec_XGtree, rec_XGtree, thresholds_XGtree = precision_recall_curve(y_test_os, prob_Xgtree_os)
 
@@ -562,7 +647,6 @@ if choice == 'Classification':
     plt.plot(prec_NB, rec_NB, color='orange', label='NB', linewidth=linewidth)
     plt.plot(prec_clf, rec_clf, color='blue', label='RF', linewidth=linewidth)
     plt.plot(prec_knn, rec_knn, color='green', label='KNN', linewidth=linewidth)
-    # plt.plot(prec_model, rec_model, color='red', label='SVM', linewidth=linewidth)
     plt.plot(prec_XGtree, rec_XGtree, color='purple', label='XG Tree', linewidth=linewidth)
 
     plt.plot([1, 0], [0.1, 0.1], color='green', linestyle='--')
@@ -571,6 +655,10 @@ if choice == 'Classification':
     plt.title('Precision-Recall Curve')
     plt.legend()
     st.pyplot()
+    st.write('Above graph shows the Precision-Recall curve that of all the '
+             'classifiers fitting the balanced dataset. Random Forest '
+             'and XGBoost Tree classifier curves are closer from the point (1,1). These two classifiers have a high '
+             'precision and sensitivy rate. K-Nearest Neighbors has the lowest precision and sensitivity rate.')
 
     # =================== Predict Input ============
     st.header('Predict Input - Random Forest Classification')
@@ -1026,10 +1114,22 @@ if choice == 'ARM':
         st.write("Lift: " + str(round(item[2][0][3], 4)))
         st.write("***************************************")
 
-    st.write('Based on the following generated rules, the lift of terrace property to gold credit card is higher '
+    st.write('Based on the following generated rules, let’s analyse the rules between government  employee type '
+             'and credit '
+             'card types.  The  lift  of  government  employee  to  platinum  credit  card  '
+             'is  higher compared to other credit card types.  This indicates that they have a strongassociation. '
+             'The confidence between government employee towards platinum credit card is also higher.  '
+             'This shows that in all transaction that is made by the government employees, the platinum credit card '
+             'appears more often compared to other credit card types.  The support of government employeeto  the  '
+             'normal  credit  card  is  higher  compared  to  other  credit  card  types. '
+             'Based on these analysis, the bank can recommend the most suitable credit card to potential '
+             'customers based on their employment type.')
+
+    st.write('Let\'s also analyse the rules between terrace property type and credit '
+             'card types. The lift of terrace property to gold credit card is higher '
              'compared to other credit card types. This indicates that they  have  a  strong  association.   The  '
              'confidence  between  terrace  property towards normal credit card is higher compared to others.  '
-             'This shows thatin all transaction that is made by someone that wants to purchase a terrace property, '
+             'This shows that in all transaction that is made by someone that wants to purchase a terrace property, '
              ' the  normal  credit  card  appears  more  often  compared  to  other credit card types.  The '
              'support of terrace property to the normal credit card is higher compared to other credit card types. '
              ' The fraction of transactions that contain terrace property and Normal credit card is higher.  Based '
