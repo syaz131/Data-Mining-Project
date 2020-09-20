@@ -6,6 +6,7 @@ import numpy as np
 import geopandas as gpd
 import descartes
 import streamlit as st
+import cv2
 
 from imblearn.over_sampling import SMOTE
 from boruta import BorutaPy
@@ -294,24 +295,16 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    n = [5, 10, 15, 20]
-    cv = []
-    mean_accuracy = []
-
-    for i in n:
-        accuracy_cv = cross_val_score(nb_os, X_train_os, y_train_os, scoring='accuracy', cv=i)
-        cv.append(i)
-        mean_accuracy.append(accuracy_cv.mean())
-
-    df_cv = pd.DataFrame({
-        "Cross_Validation": cv,
-        "Mean Accuracy": mean_accuracy
-    })
+    kcross = "./k_cross/"
+    img_knn = 'knn.png'
+    img_rf = 'rf.png'
+    img_xgb = 'xgb.png'
+    img_nb = 'nb.png'
 
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    sns.relplot(x="Cross_Validation", y="Mean Accuracy", kind="line", markers=True, legend=False, data=df_cv)
-    st.pyplot()
+    img = cv2.imread(kcross+img_nb)
+    st.image(img)
 
     # ====== Random Forest ================
     st.header('Random Forest - Imbalance Dataset')
@@ -373,24 +366,10 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    cv = []
-    mean_accuracy = []
-
-    for i in n:
-        accuracy_cv = cross_val_score(clf_os, X_train_os, y_train_os, scoring='accuracy', cv=i)
-        cv.append(i)
-        mean_accuracy.append(accuracy_cv.mean())
-
-    df_cv = pd.DataFrame({
-        "Cross_Validation": cv,
-        "Mean Accuracy": mean_accuracy
-    })
-
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    sns.relplot(x="Cross_Validation", y="Mean Accuracy", kind="line", markers=True, legend=False,
-                data=df_cv)
-    st.pyplot()
+    img = cv2.imread(kcross + img_rf)
+    st.image(img)
 
     # ====== KNN ================
     st.header('K Nearest Neighbour - Imbalance Dataset')
@@ -447,24 +426,10 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    cv = []
-    mean_accuracy = []
-
-    for i in n:
-        accuracy_cv = cross_val_score(knn_os, X_train_os, y_train_os, scoring='accuracy', cv=i)
-        cv.append(i)
-        mean_accuracy.append(accuracy_cv.mean())
-
-    df_cv = pd.DataFrame({
-        "Cross_Validation": cv,
-        "Mean Accuracy": mean_accuracy
-    })
-
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    sns.relplot(x="Cross_Validation", y="Mean Accuracy", kind="line", markers=True, legend=False,
-                data=df_cv)
-    st.pyplot()
+    img = cv2.imread(kcross + img_knn)
+    st.image(img)
 
     # ====== XGB TREE ================
     st.header('XGBoost TREE - Imbalance Dataset')
@@ -529,24 +494,10 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    cv = []
-    mean_accuracy = []
-
-    for i in n:
-        accuracy_cv = cross_val_score(xg_tree_os, X_train_os, y_train_os, scoring='accuracy', cv=i)
-        cv.append(i)
-        mean_accuracy.append(accuracy_cv.mean())
-
-    df_cv = pd.DataFrame({
-        "Cross_Validation": cv,
-        "Mean Accuracy": mean_accuracy
-    })
-
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    sns.relplot(x="Cross_Validation", y="Mean Accuracy", kind="line", markers=True, legend=False,
-                data=df_cv)
-    st.pyplot()
+    img = cv2.imread(kcross + img_xgb)
+    st.image(img)
 
     # ====== Graph ROC ================
     st.header('Graph ROC - Imbalance Dataset')
@@ -703,10 +654,6 @@ if choice == 'Clustering':
     df_ori = df_cluster.copy()
 
 
-
-    # st.write(df_ori)
-
-    # # Transform the decision column in df_cluster into 1 and 0s using Label Encoding
     df_cluster['Decision'] = LabelEncoder().fit_transform(df_cluster.Decision)
     # # Split the dataset
     X = df_cluster.drop('Decision', axis=1)
