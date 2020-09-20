@@ -303,8 +303,8 @@ if choice == 'Classification':
 
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    img1 = cv2.imread(kcross+img_nb)
-    st.image(img1)
+    # img1 = cv2.imread(kcross+img_nb)
+    # st.image(img1)
 
     # ====== Random Forest ================
     st.header('Random Forest - Imbalance Dataset')
@@ -368,8 +368,8 @@ if choice == 'Classification':
 
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    img2 = cv2.imread(kcross + img_rf)
-    st.image(img2)
+    # img2 = cv2.imread(kcross + img_rf)
+    # st.image(img2)
 
     # ====== KNN ================
     st.header('K Nearest Neighbour - Imbalance Dataset')
@@ -428,8 +428,8 @@ if choice == 'Classification':
 
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    img3 = cv2.imread(kcross + img_knn)
-    st.image(img3)
+    # img3 = cv2.imread(kcross + img_knn)
+    # st.image(img3)
 
     # ====== XGB TREE ================
     st.header('XGBoost TREE - Imbalance Dataset')
@@ -496,15 +496,14 @@ if choice == 'Classification':
 
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    img4 = cv2.imread(kcross + img_xgb)
-    st.image(img4)
+    # img4 = cv2.imread(kcross + img_xgb)
+    # st.image(img4)
 
     # ====== Graph ROC ================
     st.header('Graph ROC - Imbalance Dataset')
 
     fpr_NB, tpr_NB, thresholds_NB = roc_curve(y_test, prob_nb)
     fpr_clf, tpr_clf, thresholds_clf = roc_curve(y_test, prob_clf)
-    # fpr_model, tpr_model, thresholds_model = roc_curve(y_test, prob_model)
     fpr_XGtree, tpr_XGtree, thresholds_XGtree = roc_curve(y_test, prob_Xgtree)
     fpr_knn, tpr_knn, thresholds_knn = roc_curve(y_test, prob_knn)
 
@@ -512,7 +511,6 @@ if choice == 'Classification':
     linewidth = 1
     plt.plot(fpr_NB, tpr_NB, color='orange', label='NB', linewidth=linewidth)
     plt.plot(fpr_clf, tpr_clf, color='blue', label='RF', linewidth=linewidth)
-    # plt.plot(fpr_model, tpr_model, color='red', label='SVM', linewidth=linewidth)
     plt.plot(fpr_XGtree, tpr_XGtree, color='purple', label='XG Tree', linewidth=linewidth)
     plt.plot(fpr_knn, tpr_knn, color='green', label='KNN', linewidth=linewidth)
 
@@ -539,7 +537,6 @@ if choice == 'Classification':
     linewidth = 1
     plt.plot(fpr_NB, tpr_NB, color='orange', label='NB', linewidth=linewidth)
     plt.plot(fpr_clf, tpr_clf, color='blue', label='RF', linewidth=linewidth)
-    # plt.plot(fpr_model, tpr_model, color='red', label='SVM', linewidth=linewidth)
     plt.plot(fpr_XGtree, tpr_XGtree, color='purple', label='XG Tree', linewidth=linewidth)
     plt.plot(fpr_knn, tpr_knn, color='green', label='KNN', linewidth=linewidth)
 
@@ -563,7 +560,6 @@ if choice == 'Classification':
     st.header('Graph Precision-Recall - Imbalance Dataset')
     prec_NB, rec_NB, thresholds_NB = precision_recall_curve(y_test, prob_nb)
     prec_clf, rec_clf, thresholds_clf = precision_recall_curve(y_test, prob_clf)
-    # prec_model, rec_model, thresholds_model = precision_recall_curve(y_test, prob_model)
     prec_knn, rec_knn, thresholds_knn = precision_recall_curve(y_test, prob_knn)
     prec_XGtree, rec_XGtree, thresholds_XGtree = precision_recall_curve(y_test, prob_Xgtree)
 
