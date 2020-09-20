@@ -94,16 +94,6 @@ df_eda.Total_Sum_of_Loan = df_eda.Total_Sum_of_Loan.fillna(df_eda.Total_Sum_of_L
 df_eda = df_eda.reset_index(drop=True)
 df_eda = df_eda.drop(["Unnamed: 0", "Unnamed: 0.1"], axis=1)
 
-# ================================= New Input
-# new_Total_Income_for_Join_Application = 0
-# new_Monthly_Salary = 0
-# new_Loan_Amount = 0
-# new_Credit_Card_Exceed_Months = 0
-#
-# new_Employment_Type = ''
-# new_Property_Type = ''
-# new_More_Than_One_Products = ''
-
 select_yes_no = [np.nan, 'YES', 'NO']
 select_Employment_Type = [np.nan, 'EMPLOYER', 'SELF_EMPLOYED', 'GOVERNMENT', 'EMPLOYEE', 'FRESH_GRADUATE']
 select_Property_Type = [np.nan, 'CONDOMINIUM', 'BUNGALOW', 'TERRACE', 'FLAT']
@@ -111,7 +101,7 @@ select_State = [np.nan, 'JOHOR', 'SELANGOR', 'KUALALUMPUR', 'PENANG', 'NEGERISEM
                 'TERENGGANU', 'KEDAH']
 select_CC_type = [np.nan, 'PLATINUM', 'NORMAL', 'GOLD']
 
-# ============================ Streamlit UI
+# ============================ streamlit UI
 
 menu = ['EDA', 'Feature Selection', 'Classification', 'Clustering', 'ARM']
 st.sidebar.subheader('Main Menu')
@@ -624,6 +614,8 @@ if choice == 'Clustering':
     df_cluster = df_eda.copy()
     df_ori = df_cluster.copy()
 
+
+
     # st.write(df_ori)
 
     # # Transform the decision column in df_cluster into 1 and 0s using Label Encoding
@@ -643,9 +635,30 @@ if choice == 'Clustering':
 
     X = pd.get_dummies(X, drop_first=True)
 
-    st.write('Plot the graph using df_ori  to see how is the original data scattered around.')
-    sns.relplot(x="Loan_Amount", y="Total_Sum_of_Loan", hue="Decision", data=df_ori)
+    distortions = []
+
+    for i in range(1, 11):
+        km = KMeans(
+            n_clusters=i, init='random',
+            n_init=10, max_iter=300,
+            tol=1e-04, random_state=0
+        )
+        km.fit(X)
+        distortions.append(km.inertia_)
+    # plot
+    plt.plot(range(1, 11), distortions, marker='o')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('Distortion')
+    st.subheader('Line Chart')
     st.pyplot()
+    st.write('From the line chart, it is possible to visually determine the best value for k with respect to the '
+             'banking dataset.The line chart looks like an arm,  thus the “elbow” (the point of inflection on the '
+             'curve) is the best value of k.  In this case, the best value of k is 3.')
+
+    # st.subheader('Scatter Plot')
+    # sns.relplot(x="Loan_Amount", y="Total_Sum_of_Loan", hue="Decision", data=df_ori)
+    # st.pyplot()
+    # st.write('')
 
     km = KMeans(n_clusters=3, random_state=1)
     km.fit(X)
@@ -656,29 +669,61 @@ if choice == 'Clustering':
     df_clust_label = df_clust_label.drop("Decision", axis=1)
     df_clust_label['Decision'] = km.labels_
 
-    st.write('Total_Income_for_Join_Application VS Total_Sum_of_Loan - 3 Cluster')
     plt.figure(figsize=(10, 8))
     plt.subplot(211)
     sns.scatterplot(x="Total_Income_for_Join_Application", y="Total_Sum_of_Loan", hue="Decision", data=df_ori)
     plt.subplot(212)
     sns.scatterplot(x="Total_Income_for_Join_Application", y="Total_Sum_of_Loan", hue="Decision", data=df_clust_label)
+    st.subheader('Scatter Plot')
     st.pyplot()
+    st.write('Above figures show the before clustering and after clustering scatter plot ofMonthly Salary vs Total '
+             'Sum of Loan with '
+             'k = 3.  There are three subgroups in the data such that data points in the same cluster are very similar '
+             'while data points in different clusters are very different')
 
-    st.write('Monthly_Salary VS Loan_Amount - 3 Cluster')
     plt.figure(figsize=(10, 8))
     plt.subplot(211)
     sns.scatterplot(x="Monthly_Salary", y="Loan_Amount", hue="Decision", data=df_ori)
     plt.subplot(212)
     sns.scatterplot(x="Monthly_Salary", y="Loan_Amount", hue="Decision", data=df_clust_label)
+    st.subheader('Scatter Plot')
     st.pyplot()
+    st.write('Above figures show the before clustering and after clustering '
+             'scatter plot ofMonthly Salary vs Loan Amount. '
+             ' There no subgroups or clusters found in data.  This is because the features may be weakly correlated, '
+             'hence, there are no groups of data such that the data points are very similar')
 
-    y_pred = km.predict(X)
-    st.write("Silhouette Score (n=3) = ", silhouette_score(X, y_pred))
+    plt.figure(figsize=(10, 8))
+
+    plt.subplot(211)
+    sns.scatterplot(x="Monthly_Salary", y="Total_Sum_of_Loan", hue="Decision", data=df_ori)
+    plt.subplot(212)
+    sns.scatterplot(x="Monthly_Salary", y="Total_Sum_of_Loan", hue="Decision", data=df_clust_label)
+    st.subheader('Scatter Plot')
+    st.pyplot()
+    st.write('Above figures show the scatter plot of Total Income for Join '
+             'Application and Total Sum of Loan with k = 3 '
+             'before and after clustering .  There are three subgroups  in  the  data  such  that  data  points  in  '
+             'the  same  cluster  are  very similar while data points in different clusters are very different')
+
+
+
 
     st.subheader('Graph Silhouette Plot')
     plt.figure(figsize=(10, 4))
     silhouette_visualizer(KMeans(3, random_state=12), X, colors='yellowbrick')
     st.pyplot()
+    y_pred = km.predict(X)
+    st.write("Silhouette Score (n=3) = ", silhouette_score(X, y_pred))
+    st.write('The value of the silhouette coefficient is between [-1, 1].  A score of 1 denotes the best. '
+             'It means that '
+             'the data point is extremely compact within the cluster to which it belongs and far away from the other '
+             'clusters.  The worst value is -1 and values near 0 represents overlapping clusters The Silhouette '
+             'coefficient for k=3 is 0.36593521457784234. '
+             'This shows that there are overlapping clusters')
+
+
+
 
     # =================== Predict Input ============
     st.header('Clustering Input - K Mean Clustering')
@@ -854,6 +899,7 @@ if choice == 'EDA':
     st.header('End of EDA')
 
 if choice == 'Feature Selection':
+
     st.title('Feature Selection')
     st.header('Feature Selection using Boruta')
 
