@@ -12,3 +12,4 @@ apyori==1.1.2
 descartes==1.1.0
 yellowbrick==1.1 
 opencv-contrib-python-headless
+base64
