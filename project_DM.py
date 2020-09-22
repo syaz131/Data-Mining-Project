@@ -9,7 +9,7 @@ import descartes
 import streamlit as st
 
 from imblearn.over_sampling import SMOTE
-from boruta import BorutaPy
+# from boruta import BorutaPy
 
 from sklearn.model_selection import train_test_split, cross_val_score
 
@@ -948,98 +948,98 @@ if choice == 'EDA':
     # =========================== Stop ===============================
     st.header('End of EDA')
 
-if choice == 'Feature Selection':
-
-    st.title('Feature Selection')
-    st.header('Feature Selection using Boruta')
-
-    # Label Encoding
-    df_le = df_eda.copy()
-
-    df_le['More_Than_One_Products'] = LabelEncoder().fit_transform(df_le.More_Than_One_Products)
-    df_le['Employment_Type'] = LabelEncoder().fit_transform(df_le.Employment_Type)
-    df_le['Property_Type'] = LabelEncoder().fit_transform(df_le.Property_Type)
-    df_le['State'] = LabelEncoder().fit_transform(df_le.State)
-    df_le['Decision'] = LabelEncoder().fit_transform(df_le.Decision)
-    df_le['Credit_Card_types'] = LabelEncoder().fit_transform(df_le.Credit_Card_types)
-
-    # ================= SMOTENC ======================
-
-    y = df_le.Decision
-    X = df_le.drop(["Decision"], axis=1)
-
-    os = SMOTE(random_state=0)
-    columns = X.columns
-    os_data_X, os_data_y = os.fit_sample(X, y)
-    os_data_X = pd.DataFrame(data=os_data_X, columns=columns)
-    os_data_y = pd.DataFrame(data=os_data_y, columns=['Decision'])
-
-
-    # ================= Boruta ======================
-    def ranking(ranks, names, order=1):
-        minmax = MinMaxScaler()
-        ranks = minmax.fit_transform(order * np.array([ranks]).T).T[0]
-        ranks = map(lambda x: round(x, 2), ranks)
-        return dict(zip(names, ranks))
-
-
-    colnames = X.columns
-    rf = RandomForestClassifier(n_jobs=-1, class_weight="balanced", max_depth=5)
-    feat_selector = BorutaPy(rf, n_estimators="auto", random_state=1)
-    feat_selector_os = BorutaPy(rf, n_estimators="auto", random_state=1)
-
-    feat_selector.fit(X.values, y.values.ravel())
-    feat_selector_os.fit(os_data_X.values, os_data_y.values.ravel())
-
-    boruta_score = ranking(list(map(float, feat_selector.ranking_)), colnames, order=-1)
-    boruta_score = pd.DataFrame(list(boruta_score.items()), columns=['Features', 'Score'])
-    boruta_score = boruta_score.sort_values('Score', ascending=False)
-
-    st.subheader('Boruta Score before SMOTE ranking')
-    st.write('-----------Top 10------------')
-    st.table(boruta_score.head(10))
-    st.write('Top 10 Features Selected in the Imbalanced Dataset. Only one feature has the highest score of 1.0 which '
-             'is TotalIncomeforJoinApplication. Other features in the top 10 features have a score ranging from 0.53 '
-             'to 0.95')
-
-    st.write('-----------Bottom 10------------')
-    st.table(boruta_score.tail(10))
-    st.write('Bottom  10  Features  Selected  in  the  ImbalancedDataset.There  are  a  few  features  with  score  '
-             'between  0.05  to  0.47.   There is one features with score 0.0.  Features with low score are not '
-             'relevant to the target variable.')
-
-    sns_boruta_plot = sns.catplot(x="Score", y="Features", data=boruta_score[:], kind="bar", height=14, aspect=1.9,
-                                  palette='coolwarm')
-    plt.title("Boruta (Imbalance Dataset)")
-    st.write('Boruta Score (Imbalance Dataset)')
-    st.pyplot()
-    st.write('The importance of the features in the imbalanced dataset are ranked and shown in the above figure')
-
-    boruta_score_os = ranking(list(map(float, feat_selector_os.ranking_)),
-                              colnames, order=-1)
-    boruta_score_os = pd.DataFrame(list(boruta_score_os.items()), columns=['Features', 'Score'])
-    boruta_score_os = boruta_score_os.sort_values('Score', ascending=False)
-
-    st.subheader('Boruta Score after SMOTE ranking')
-    st.write('---------Top 10----------')
-    st.table(boruta_score_os.head(10))
-    st.write('All of  the  features  have  a  score  of  1.0.  Features  such  as  MonthlySalary,LoanAmount and '
-             'TotalIncomeforJoinApplication are believed to be useful to a model in predicting the target variable.')
-
-    st.write('---------Bottom 10----------')
-    st.table(boruta_score_os.tail(10))
-    st.write('There are one features with score 0.0.  The rest are 1.0.  Features with low score are not relevant to '
-             'the target variable')
-
-    sns_boruta_plot = sns.catplot(x="Score", y="Features", data=boruta_score_os[:], kind="bar", height=14, aspect=1.9,
-                                  palette='coolwarm')
-    plt.title("Boruta (SMOTE Dataset)")
-    st.write('Boruta Score (SMOTE Dataset)')
-    st.pyplot()
-    st.write('The importance of the features in the balanced dataset are ranked ands hown in the above figure')
-
-    # =========================== Stop ===============================
-    st.header('End of Feature Selection')
+# if choice == 'Feature Selection':
+#
+#     st.title('Feature Selection')
+#     st.header('Feature Selection using Boruta')
+#
+#     # Label Encoding
+#     df_le = df_eda.copy()
+#
+#     df_le['More_Than_One_Products'] = LabelEncoder().fit_transform(df_le.More_Than_One_Products)
+#     df_le['Employment_Type'] = LabelEncoder().fit_transform(df_le.Employment_Type)
+#     df_le['Property_Type'] = LabelEncoder().fit_transform(df_le.Property_Type)
+#     df_le['State'] = LabelEncoder().fit_transform(df_le.State)
+#     df_le['Decision'] = LabelEncoder().fit_transform(df_le.Decision)
+#     df_le['Credit_Card_types'] = LabelEncoder().fit_transform(df_le.Credit_Card_types)
+#
+#     # ================= SMOTENC ======================
+#
+#     y = df_le.Decision
+#     X = df_le.drop(["Decision"], axis=1)
+#
+#     os = SMOTE(random_state=0)
+#     columns = X.columns
+#     os_data_X, os_data_y = os.fit_sample(X, y)
+#     os_data_X = pd.DataFrame(data=os_data_X, columns=columns)
+#     os_data_y = pd.DataFrame(data=os_data_y, columns=['Decision'])
+#
+#
+#     # ================= Boruta ======================
+#     def ranking(ranks, names, order=1):
+#         minmax = MinMaxScaler()
+#         ranks = minmax.fit_transform(order * np.array([ranks]).T).T[0]
+#         ranks = map(lambda x: round(x, 2), ranks)
+#         return dict(zip(names, ranks))
+#
+#
+#     colnames = X.columns
+#     rf = RandomForestClassifier(n_jobs=-1, class_weight="balanced", max_depth=5)
+#     feat_selector = BorutaPy(rf, n_estimators="auto", random_state=1)
+#     feat_selector_os = BorutaPy(rf, n_estimators="auto", random_state=1)
+#
+#     feat_selector.fit(X.values, y.values.ravel())
+#     feat_selector_os.fit(os_data_X.values, os_data_y.values.ravel())
+#
+#     boruta_score = ranking(list(map(float, feat_selector.ranking_)), colnames, order=-1)
+#     boruta_score = pd.DataFrame(list(boruta_score.items()), columns=['Features', 'Score'])
+#     boruta_score = boruta_score.sort_values('Score', ascending=False)
+#
+#     st.subheader('Boruta Score before SMOTE ranking')
+#     st.write('-----------Top 10------------')
+#     st.table(boruta_score.head(10))
+#     st.write('Top 10 Features Selected in the Imbalanced Dataset. Only one feature has the highest score of 1.0 which '
+#              'is TotalIncomeforJoinApplication. Other features in the top 10 features have a score ranging from 0.53 '
+#              'to 0.95')
+#
+#     st.write('-----------Bottom 10------------')
+#     st.table(boruta_score.tail(10))
+#     st.write('Bottom  10  Features  Selected  in  the  ImbalancedDataset.There  are  a  few  features  with  score  '
+#              'between  0.05  to  0.47.   There is one features with score 0.0.  Features with low score are not '
+#              'relevant to the target variable.')
+#
+#     sns_boruta_plot = sns.catplot(x="Score", y="Features", data=boruta_score[:], kind="bar", height=14, aspect=1.9,
+#                                   palette='coolwarm')
+#     plt.title("Boruta (Imbalance Dataset)")
+#     st.write('Boruta Score (Imbalance Dataset)')
+#     st.pyplot()
+#     st.write('The importance of the features in the imbalanced dataset are ranked and shown in the above figure')
+#
+#     boruta_score_os = ranking(list(map(float, feat_selector_os.ranking_)),
+#                               colnames, order=-1)
+#     boruta_score_os = pd.DataFrame(list(boruta_score_os.items()), columns=['Features', 'Score'])
+#     boruta_score_os = boruta_score_os.sort_values('Score', ascending=False)
+#
+#     st.subheader('Boruta Score after SMOTE ranking')
+#     st.write('---------Top 10----------')
+#     st.table(boruta_score_os.head(10))
+#     st.write('All of  the  features  have  a  score  of  1.0.  Features  such  as  MonthlySalary,LoanAmount and '
+#              'TotalIncomeforJoinApplication are believed to be useful to a model in predicting the target variable.')
+#
+#     st.write('---------Bottom 10----------')
+#     st.table(boruta_score_os.tail(10))
+#     st.write('There are one features with score 0.0.  The rest are 1.0.  Features with low score are not relevant to '
+#              'the target variable')
+#
+#     sns_boruta_plot = sns.catplot(x="Score", y="Features", data=boruta_score_os[:], kind="bar", height=14, aspect=1.9,
+#                                   palette='coolwarm')
+#     plt.title("Boruta (SMOTE Dataset)")
+#     st.write('Boruta Score (SMOTE Dataset)')
+#     st.pyplot()
+#     st.write('The importance of the features in the balanced dataset are ranked ands hown in the above figure')
+#
+#     # =========================== Stop ===============================
+#     st.header('End of Feature Selection')
 
 if choice == 'ARM':
     st.title("Association Rule Mining")
