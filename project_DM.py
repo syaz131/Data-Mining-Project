@@ -113,19 +113,6 @@ def get_table_download_link(df):
     href = f'<a href="data:file/csv;base64,{b64}" download="prediction.csv">Download csv file</a>'
     return href
 
-
-    # pdf = FPDF()
-    # pdf.add_page()
-    # pdf.set_font("Arial", size=15)
-    # f = open("myfile.txt", "r")
-    #
-    # # insert the texts in pdf
-    # for x in f:
-    #     pdf.cell(200, 10, txt=x, ln=1, align='C')
-    #
-    #     # save the pdf with name .pdf
-    # pdf.output("mygfg.pdf")
-
 menu = ['EDA', 'Feature Selection', 'Classification', 'Clustering', 'ARM']
 st.sidebar.subheader('Main Menu')
 choice = st.sidebar.selectbox("Select Menu Page", menu)
