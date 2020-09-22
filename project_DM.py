@@ -1,3 +1,4 @@
+import base64
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -104,6 +105,14 @@ select_State = [np.nan, 'JOHOR', 'SELANGOR', 'KUALALUMPUR', 'PENANG', 'NEGERISEM
 select_CC_type = [np.nan, 'PLATINUM', 'NORMAL', 'GOLD']
 
 # ============================ streamlit UI
+
+def get_table_download_link(df):
+    markd = df.to_csv()
+
+    b64 = base64.b64encode(markd.encode()).decode()  # some strings <-> bytes conversions necessary here
+    href = f'<a href="data:file/csv;base64,{b64}" download="prediction.csv">Download csv file</a>'
+    return href
+
 
 menu = ['EDA', 'Feature Selection', 'Classification', 'Clustering', 'ARM']
 st.sidebar.subheader('Main Menu')
@@ -303,8 +312,8 @@ if choice == 'Classification':
 
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    # img1 = cv2.imread(kcross+img_nb)
-    # st.image(img1)
+    img1 = cv2.imread(kcross+img_nb)
+    st.image(img1)
 
     # ====== Random Forest ================
     st.header('Random Forest - Imbalance Dataset')
@@ -368,8 +377,8 @@ if choice == 'Classification':
 
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    # img2 = cv2.imread(kcross + img_rf)
-    # st.image(img2)
+    img2 = cv2.imread(kcross + img_rf)
+    st.image(img2)
 
     # ====== KNN ================
     st.header('K Nearest Neighbour - Imbalance Dataset')
@@ -428,8 +437,8 @@ if choice == 'Classification':
 
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    # img3 = cv2.imread(kcross + img_knn)
-    # st.image(img3)
+    img3 = cv2.imread(kcross + img_knn)
+    st.image(img3)
 
     # ====== XGB TREE ================
     st.header('XGBoost TREE - Imbalance Dataset')
@@ -496,8 +505,8 @@ if choice == 'Classification':
 
     st.subheader('Line Chart')
     st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    # img4 = cv2.imread(kcross + img_xgb)
-    # st.image(img4)
+    img4 = cv2.imread(kcross + img_xgb)
+    st.image(img4)
 
     # ====== Graph ROC ================
     st.header('Graph ROC - Imbalance Dataset')
@@ -612,6 +621,7 @@ if choice == 'Classification':
 
     st.write('Prediction of your input:')
     st.write(new_series.iloc[0])
+    series_csv = new_series.iloc[0].copy()
 
     # place to translate
     Temp_dict = {'EMPLOYEE': 0, 'EMPLOYER': 1, 'FRESH_GRADUATE': 2, 'GOVERNMENT': 3, 'SELF_EMPLOYED': 4}
@@ -635,9 +645,15 @@ if choice == 'Classification':
 
     st.write('Prediction result:')
     if y_pred_os_input[0] == 1:
+        result_csv = 'REJECT'
         st.error('REJECT')
     else:
+        result_csv = 'ACCEPT'
         st.success('ACCEPT')
+
+    series_csv['Decision'] = result_csv
+
+    st.markdown(get_table_download_link(series_csv), unsafe_allow_html=True)
 
     # =========================== Stop ===============================
     st.header('End of Classification')
@@ -760,6 +776,7 @@ if choice == 'Clustering':
     st.header('Clustering Input - K Mean Clustering')
     st.write('Clustering of your input:')
     st.write(X_new.iloc[-1])
+    X_csv = X_new.iloc[-1].copy()
 
     X_new = pd.get_dummies(X_new, drop_first=True)
     X_new = X_new.drop(X_new.index[:-1])
@@ -767,6 +784,9 @@ if choice == 'Clustering':
     new_y_pred = km.predict(X_new)
     st.write('Clustering Label of your input :')
     st.success(new_y_pred)
+    X_csv['label'] = new_y_pred[0]
+
+    st.markdown(get_table_download_link(X_csv), unsafe_allow_html=True)
 
     # =========================== Stop ===============================
     st.header('End of Clustering')
