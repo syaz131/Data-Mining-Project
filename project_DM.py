@@ -112,8 +112,8 @@ def get_table_download_link(df):
     href = f'<a href="data:file/csv;base64,{b64}" download="prediction.csv">Download csv file</a>'
     return href
 
-
-menu = ['EDA', 'Feature Selection', 'Classification', 'Clustering', 'ARM']
+# Feature Selection
+menu = ['EDA', 'Classification', 'Clustering', 'ARM']
 st.sidebar.subheader('Main Menu')
 choice = st.sidebar.selectbox("Select Menu Page", menu)
 
