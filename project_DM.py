@@ -1,4 +1,3 @@
-import base64
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -7,9 +6,10 @@ import numpy as np
 import geopandas as gpd
 import descartes
 import streamlit as st
+import cv2
 
 from imblearn.over_sampling import SMOTE
-# from boruta import BorutaPy
+from boruta import BorutaPy
 
 from sklearn.model_selection import train_test_split, cross_val_score
 
@@ -105,15 +105,7 @@ select_CC_type = [np.nan, 'PLATINUM', 'NORMAL', 'GOLD']
 
 # ============================ streamlit UI
 
-def get_table_download_link(df):
-    markd = df.to_csv()
-
-    b64 = base64.b64encode(markd.encode()).decode()  # some strings <-> bytes conversions necessary here
-    href = f'<a href="data:file/csv;base64,{b64}" download="prediction.csv">Download csv file</a>'
-    return href
-
-# Feature Selection
-menu = ['EDA', 'Classification', 'Clustering', 'ARM']
+menu = ['EDA', 'Feature Selection', 'Classification', 'Clustering', 'ARM']
 st.sidebar.subheader('Main Menu')
 choice = st.sidebar.selectbox("Select Menu Page", menu)
 
@@ -309,10 +301,10 @@ if choice == 'Classification':
     img_xgb = 'xgb.png'
     img_nb = 'nb.png'
 
-    # st.subheader('Line Chart')
-    # st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    # img1 = cv2.imread(kcross+img_nb)
-    # st.image(img1)
+    st.subheader('Line Chart')
+    st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    img1 = cv2.imread(kcross+img_nb)
+    st.image(img1)
 
     # ====== Random Forest ================
     st.header('Random Forest - Imbalance Dataset')
@@ -374,10 +366,10 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    # st.subheader('Line Chart')
-    # st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    # img2 = cv2.imread(kcross + img_rf)
-    # st.image(img2)
+    st.subheader('Line Chart')
+    st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    img2 = cv2.imread(kcross + img_rf)
+    st.image(img2)
 
     # ====== KNN ================
     st.header('K Nearest Neighbour - Imbalance Dataset')
@@ -434,10 +426,10 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    # st.subheader('Line Chart')
-    # st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    # img3 = cv2.imread(kcross + img_knn)
-    # st.image(img3)
+    st.subheader('Line Chart')
+    st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    img3 = cv2.imread(kcross + img_knn)
+    st.image(img3)
 
     # ====== XGB TREE ================
     st.header('XGBoost TREE - Imbalance Dataset')
@@ -502,10 +494,10 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    # st.subheader('Line Chart')
-    # st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    # img4 = cv2.imread(kcross + img_xgb)
-    # st.image(img4)
+    st.subheader('Line Chart')
+    st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    img4 = cv2.imread(kcross + img_xgb)
+    st.image(img4)
 
     # ====== Graph ROC ================
     st.header('Graph ROC - Imbalance Dataset')
@@ -620,7 +612,6 @@ if choice == 'Classification':
 
     st.write('Prediction of your input:')
     st.write(new_series.iloc[0])
-    series_csv = new_series.iloc[0].copy()
 
     # place to translate
     Temp_dict = {'EMPLOYEE': 0, 'EMPLOYER': 1, 'FRESH_GRADUATE': 2, 'GOVERNMENT': 3, 'SELF_EMPLOYED': 4}
@@ -644,15 +635,9 @@ if choice == 'Classification':
 
     st.write('Prediction result:')
     if y_pred_os_input[0] == 1:
-        result_csv = 'REJECT'
         st.error('REJECT')
     else:
-        result_csv = 'ACCEPT'
         st.success('ACCEPT')
-
-    series_csv['Decision'] = result_csv
-
-    st.markdown(get_table_download_link(series_csv), unsafe_allow_html=True)
 
     # =========================== Stop ===============================
     st.header('End of Classification')
@@ -775,7 +760,6 @@ if choice == 'Clustering':
     st.header('Clustering Input - K Mean Clustering')
     st.write('Clustering of your input:')
     st.write(X_new.iloc[-1])
-    X_csv = X_new.iloc[-1].copy()
 
     X_new = pd.get_dummies(X_new, drop_first=True)
     X_new = X_new.drop(X_new.index[:-1])
@@ -783,9 +767,6 @@ if choice == 'Clustering':
     new_y_pred = km.predict(X_new)
     st.write('Clustering Label of your input :')
     st.success(new_y_pred)
-    X_csv['label'] = new_y_pred[0]
-
-    st.markdown(get_table_download_link(X_csv), unsafe_allow_html=True)
 
     # =========================== Stop ===============================
     st.header('End of Clustering')
@@ -948,98 +929,98 @@ if choice == 'EDA':
     # =========================== Stop ===============================
     st.header('End of EDA')
 
-# if choice == 'Feature Selection':
-#
-#     st.title('Feature Selection')
-#     st.header('Feature Selection using Boruta')
-#
-#     # Label Encoding
-#     df_le = df_eda.copy()
-#
-#     df_le['More_Than_One_Products'] = LabelEncoder().fit_transform(df_le.More_Than_One_Products)
-#     df_le['Employment_Type'] = LabelEncoder().fit_transform(df_le.Employment_Type)
-#     df_le['Property_Type'] = LabelEncoder().fit_transform(df_le.Property_Type)
-#     df_le['State'] = LabelEncoder().fit_transform(df_le.State)
-#     df_le['Decision'] = LabelEncoder().fit_transform(df_le.Decision)
-#     df_le['Credit_Card_types'] = LabelEncoder().fit_transform(df_le.Credit_Card_types)
-#
-#     # ================= SMOTENC ======================
-#
-#     y = df_le.Decision
-#     X = df_le.drop(["Decision"], axis=1)
-#
-#     os = SMOTE(random_state=0)
-#     columns = X.columns
-#     os_data_X, os_data_y = os.fit_sample(X, y)
-#     os_data_X = pd.DataFrame(data=os_data_X, columns=columns)
-#     os_data_y = pd.DataFrame(data=os_data_y, columns=['Decision'])
-#
-#
-#     # ================= Boruta ======================
-#     def ranking(ranks, names, order=1):
-#         minmax = MinMaxScaler()
-#         ranks = minmax.fit_transform(order * np.array([ranks]).T).T[0]
-#         ranks = map(lambda x: round(x, 2), ranks)
-#         return dict(zip(names, ranks))
-#
-#
-#     colnames = X.columns
-#     rf = RandomForestClassifier(n_jobs=-1, class_weight="balanced", max_depth=5)
-#     feat_selector = BorutaPy(rf, n_estimators="auto", random_state=1)
-#     feat_selector_os = BorutaPy(rf, n_estimators="auto", random_state=1)
-#
-#     feat_selector.fit(X.values, y.values.ravel())
-#     feat_selector_os.fit(os_data_X.values, os_data_y.values.ravel())
-#
-#     boruta_score = ranking(list(map(float, feat_selector.ranking_)), colnames, order=-1)
-#     boruta_score = pd.DataFrame(list(boruta_score.items()), columns=['Features', 'Score'])
-#     boruta_score = boruta_score.sort_values('Score', ascending=False)
-#
-#     st.subheader('Boruta Score before SMOTE ranking')
-#     st.write('-----------Top 10------------')
-#     st.table(boruta_score.head(10))
-#     st.write('Top 10 Features Selected in the Imbalanced Dataset. Only one feature has the highest score of 1.0 which '
-#              'is TotalIncomeforJoinApplication. Other features in the top 10 features have a score ranging from 0.53 '
-#              'to 0.95')
-#
-#     st.write('-----------Bottom 10------------')
-#     st.table(boruta_score.tail(10))
-#     st.write('Bottom  10  Features  Selected  in  the  ImbalancedDataset.There  are  a  few  features  with  score  '
-#              'between  0.05  to  0.47.   There is one features with score 0.0.  Features with low score are not '
-#              'relevant to the target variable.')
-#
-#     sns_boruta_plot = sns.catplot(x="Score", y="Features", data=boruta_score[:], kind="bar", height=14, aspect=1.9,
-#                                   palette='coolwarm')
-#     plt.title("Boruta (Imbalance Dataset)")
-#     st.write('Boruta Score (Imbalance Dataset)')
-#     st.pyplot()
-#     st.write('The importance of the features in the imbalanced dataset are ranked and shown in the above figure')
-#
-#     boruta_score_os = ranking(list(map(float, feat_selector_os.ranking_)),
-#                               colnames, order=-1)
-#     boruta_score_os = pd.DataFrame(list(boruta_score_os.items()), columns=['Features', 'Score'])
-#     boruta_score_os = boruta_score_os.sort_values('Score', ascending=False)
-#
-#     st.subheader('Boruta Score after SMOTE ranking')
-#     st.write('---------Top 10----------')
-#     st.table(boruta_score_os.head(10))
-#     st.write('All of  the  features  have  a  score  of  1.0.  Features  such  as  MonthlySalary,LoanAmount and '
-#              'TotalIncomeforJoinApplication are believed to be useful to a model in predicting the target variable.')
-#
-#     st.write('---------Bottom 10----------')
-#     st.table(boruta_score_os.tail(10))
-#     st.write('There are one features with score 0.0.  The rest are 1.0.  Features with low score are not relevant to '
-#              'the target variable')
-#
-#     sns_boruta_plot = sns.catplot(x="Score", y="Features", data=boruta_score_os[:], kind="bar", height=14, aspect=1.9,
-#                                   palette='coolwarm')
-#     plt.title("Boruta (SMOTE Dataset)")
-#     st.write('Boruta Score (SMOTE Dataset)')
-#     st.pyplot()
-#     st.write('The importance of the features in the balanced dataset are ranked ands hown in the above figure')
-#
-#     # =========================== Stop ===============================
-#     st.header('End of Feature Selection')
+if choice == 'Feature Selection':
+
+    st.title('Feature Selection')
+    st.header('Feature Selection using Boruta')
+
+    # Label Encoding
+    df_le = df_eda.copy()
+
+    df_le['More_Than_One_Products'] = LabelEncoder().fit_transform(df_le.More_Than_One_Products)
+    df_le['Employment_Type'] = LabelEncoder().fit_transform(df_le.Employment_Type)
+    df_le['Property_Type'] = LabelEncoder().fit_transform(df_le.Property_Type)
+    df_le['State'] = LabelEncoder().fit_transform(df_le.State)
+    df_le['Decision'] = LabelEncoder().fit_transform(df_le.Decision)
+    df_le['Credit_Card_types'] = LabelEncoder().fit_transform(df_le.Credit_Card_types)
+
+    # ================= SMOTENC ======================
+
+    y = df_le.Decision
+    X = df_le.drop(["Decision"], axis=1)
+
+    os = SMOTE(random_state=0)
+    columns = X.columns
+    os_data_X, os_data_y = os.fit_sample(X, y)
+    os_data_X = pd.DataFrame(data=os_data_X, columns=columns)
+    os_data_y = pd.DataFrame(data=os_data_y, columns=['Decision'])
+
+
+    # ================= Boruta ======================
+    def ranking(ranks, names, order=1):
+        minmax = MinMaxScaler()
+        ranks = minmax.fit_transform(order * np.array([ranks]).T).T[0]
+        ranks = map(lambda x: round(x, 2), ranks)
+        return dict(zip(names, ranks))
+
+
+    colnames = X.columns
+    rf = RandomForestClassifier(n_jobs=-1, class_weight="balanced", max_depth=5)
+    feat_selector = BorutaPy(rf, n_estimators="auto", random_state=1)
+    feat_selector_os = BorutaPy(rf, n_estimators="auto", random_state=1)
+
+    feat_selector.fit(X.values, y.values.ravel())
+    feat_selector_os.fit(os_data_X.values, os_data_y.values.ravel())
+
+    boruta_score = ranking(list(map(float, feat_selector.ranking_)), colnames, order=-1)
+    boruta_score = pd.DataFrame(list(boruta_score.items()), columns=['Features', 'Score'])
+    boruta_score = boruta_score.sort_values('Score', ascending=False)
+
+    st.subheader('Boruta Score before SMOTE ranking')
+    st.write('-----------Top 10------------')
+    st.table(boruta_score.head(10))
+    st.write('Top 10 Features Selected in the Imbalanced Dataset. Only one feature has the highest score of 1.0 which '
+             'is TotalIncomeforJoinApplication. Other features in the top 10 features have a score ranging from 0.53 '
+             'to 0.95')
+
+    st.write('-----------Bottom 10------------')
+    st.table(boruta_score.tail(10))
+    st.write('Bottom  10  Features  Selected  in  the  ImbalancedDataset.There  are  a  few  features  with  score  '
+             'between  0.05  to  0.47.   There is one features with score 0.0.  Features with low score are not '
+             'relevant to the target variable.')
+
+    sns_boruta_plot = sns.catplot(x="Score", y="Features", data=boruta_score[:], kind="bar", height=14, aspect=1.9,
+                                  palette='coolwarm')
+    plt.title("Boruta (Imbalance Dataset)")
+    st.write('Boruta Score (Imbalance Dataset)')
+    st.pyplot()
+    st.write('The importance of the features in the imbalanced dataset are ranked and shown in the above figure')
+
+    boruta_score_os = ranking(list(map(float, feat_selector_os.ranking_)),
+                              colnames, order=-1)
+    boruta_score_os = pd.DataFrame(list(boruta_score_os.items()), columns=['Features', 'Score'])
+    boruta_score_os = boruta_score_os.sort_values('Score', ascending=False)
+
+    st.subheader('Boruta Score after SMOTE ranking')
+    st.write('---------Top 10----------')
+    st.table(boruta_score_os.head(10))
+    st.write('All of  the  features  have  a  score  of  1.0.  Features  such  as  MonthlySalary,LoanAmount and '
+             'TotalIncomeforJoinApplication are believed to be useful to a model in predicting the target variable.')
+
+    st.write('---------Bottom 10----------')
+    st.table(boruta_score_os.tail(10))
+    st.write('There are one features with score 0.0.  The rest are 1.0.  Features with low score are not relevant to '
+             'the target variable')
+
+    sns_boruta_plot = sns.catplot(x="Score", y="Features", data=boruta_score_os[:], kind="bar", height=14, aspect=1.9,
+                                  palette='coolwarm')
+    plt.title("Boruta (SMOTE Dataset)")
+    st.write('Boruta Score (SMOTE Dataset)')
+    st.pyplot()
+    st.write('The importance of the features in the balanced dataset are ranked ands hown in the above figure')
+
+    # =========================== Stop ===============================
+    st.header('End of Feature Selection')
 
 if choice == 'ARM':
     st.title("Association Rule Mining")
