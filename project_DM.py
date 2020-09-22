@@ -310,10 +310,10 @@ if choice == 'Classification':
     img_xgb = 'xgb.png'
     img_nb = 'nb.png'
 
-    st.subheader('Line Chart')
-    st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    img1 = cv2.imread(kcross+img_nb)
-    st.image(img1)
+    # st.subheader('Line Chart')
+    # st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    # img1 = cv2.imread(kcross+img_nb)
+    # st.image(img1)
 
     # ====== Random Forest ================
     st.header('Random Forest - Imbalance Dataset')
@@ -375,10 +375,10 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    st.subheader('Line Chart')
-    st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    img2 = cv2.imread(kcross + img_rf)
-    st.image(img2)
+    # st.subheader('Line Chart')
+    # st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    # img2 = cv2.imread(kcross + img_rf)
+    # st.image(img2)
 
     # ====== KNN ================
     st.header('K Nearest Neighbour - Imbalance Dataset')
@@ -435,10 +435,10 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    st.subheader('Line Chart')
-    st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    img3 = cv2.imread(kcross + img_knn)
-    st.image(img3)
+    # st.subheader('Line Chart')
+    # st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    # img3 = cv2.imread(kcross + img_knn)
+    # st.image(img3)
 
     # ====== XGB TREE ================
     st.header('XGBoost TREE - Imbalance Dataset')
@@ -503,10 +503,10 @@ if choice == 'Classification':
     st.write('Accuracy= {:.2f}'.format(accuracy_score(y_test_os, y_pred_os)))
     st.write('**********************')
 
-    st.subheader('Line Chart')
-    st.write('k-Cross Validation with k = 5, 10, 15, 20')
-    img4 = cv2.imread(kcross + img_xgb)
-    st.image(img4)
+    # st.subheader('Line Chart')
+    # st.write('k-Cross Validation with k = 5, 10, 15, 20')
+    # img4 = cv2.imread(kcross + img_xgb)
+    # st.image(img4)
 
     # ====== Graph ROC ================
     st.header('Graph ROC - Imbalance Dataset')
